@@ -1,13 +1,16 @@
 services:
   api_service:
-    build: .
-    container_name: library-api
+    build:
+      context: ../..
+      dockerfile: docker/prod/Dockerfile
+    container_name: library-api-prod
     restart: on-failure
     ports:
       - 8080:8080
     depends_on:
       - mysqldb
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/APIDevelopSpringBoot?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true"
       SPRING_DATASOURCE_USERNAME: santi
       SPRING_DATASOURCE_PASSWORD: password

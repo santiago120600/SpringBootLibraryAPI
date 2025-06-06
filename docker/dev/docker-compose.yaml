@@ -1,0 +1,45 @@
+services:
+  api_service:
+    build:
+      context: ../..
+      dockerfile: docker/dev/Dockerfile
+    container_name: library-api-dev
+    restart: on-failure
+    ports:
+      - 8080:8080
+      - 5005:5005
+    depends_on:
+      - mysqldb
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/APIDevelopSpringBoot?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true"
+      SPRING_DATASOURCE_USERNAME: santi
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    volumes:
+      - ../../src:/app/src
+      - ../../pom.xml:/app/pom.xml
+      - ../../target:/app/target
+    networks:
+      - library-network
+      
+  mysqldb:
+    image: "mysql:8.0"
+    restart: always
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: APIDevelopSpringBoot
+      MYSQL_USER: santi
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin
+    networks:
+      - library-network
+volumes:
+  data:
+
+networks:
+  library-network:

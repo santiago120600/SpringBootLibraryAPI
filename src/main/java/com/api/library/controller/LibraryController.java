@@ -1,15 +1,15 @@
 package com.api.library.controller;
 
-import java.net.http.HttpHeaders;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.api.library.repository.LibraryRepository;
+import com.api.library.service.LibraryService;
 
 @RestController
 public class LibraryController{
@@ -20,16 +20,23 @@ public class LibraryController{
     @Autowired
     AddBookResponse add; 
 
+    @Autowired
+    LibraryService service;
+
     @PostMapping("/book") 
     public ResponseEntity addBook(@RequestBody Library library){
-        library.setId(library.getIsbn()+library.getAisle());
-        repository.save(library);
+        String id = service.buildId(library.getIsbn(), library.getAisle());
         HttpHeaders headers = new HttpHeaders();
         headers.add("environment","QA");
-        add.setMessage("Book successfully addded");
-        library.setId(library.getIsbn()+library.getAisle());
-        add.setMessage("Book successfully added");
-        add.setId(library.getIsbn()+library.getAisle());
-        return new ResponseEntity<AddBookResponse>(add, headers,HttpStatus.CREATED);
+        add.setId(id);
+        if(!service.checkBookAlreadyExists(id)){
+            library.setId(id);
+            repository.save(library);
+            add.setMessage("Book successfully added");
+            return new ResponseEntity<AddBookResponse>(add, headers,HttpStatus.CREATED);
+        }else{
+            add.setMessage("Book already exists");
+            return new ResponseEntity<AddBookResponse>(add, headers,HttpStatus.ACCEPTED);
+        }
     }
 }
