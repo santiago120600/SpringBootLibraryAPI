@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.api.library.repository.LibraryRepository;
 import java.util.Optional;
-import com.api.library.controller.Library;
+import com.api.library.model.Library;
 
 @Service
 public class LibraryService{

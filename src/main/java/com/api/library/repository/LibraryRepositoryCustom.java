@@ -2,7 +2,7 @@ package com.api.library.repository;
 
 import java.util.List;
 
-import com.api.library.controller.Library;
+import com.api.library.model.Library;
 
 public interface LibraryRepositoryCustom {
 

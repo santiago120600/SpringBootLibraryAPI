@@ -1,4 +1,4 @@
-package com.api.library.controller;
+package com.api.library.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

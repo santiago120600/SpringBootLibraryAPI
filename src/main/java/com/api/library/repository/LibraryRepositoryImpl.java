@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.api.library.controller.Library;
+import com.api.library.model.Library;
 import com.api.library.repository.LibraryRepositoryCustom;
 
 public class LibraryRepositoryImpl implements LibraryRepositoryCustom {
