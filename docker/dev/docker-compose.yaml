@@ -13,8 +13,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/APIDevelopSpringBoot?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true"
-      SPRING_DATASOURCE_USERNAME: santi
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     volumes:
@@ -32,10 +32,10 @@ services:
     ports:
       - 3306:3306
     environment:
-      MYSQL_DATABASE: APIDevelopSpringBoot
-      MYSQL_USER: santi
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     networks:
       - library-network
 volumes:
