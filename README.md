@@ -20,3 +20,6 @@ The production environment is optimized for deployment, with no debugging or liv
    ```bash
    docker-compose -f docker/prod/docker-compose.yaml up --build
    ```
+
+### Swagger
+`http://server:port/swagger-ui.html`
