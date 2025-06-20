@@ -11,7 +11,7 @@ import lombok.Setter;
 @Table(name="Book")
 @Getter
 @Setter
-public class Library {
+public class Book {
 
     @Column(name="book_name")
     private String book_name;

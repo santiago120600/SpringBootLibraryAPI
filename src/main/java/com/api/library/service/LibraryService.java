@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.api.library.repository.LibraryRepository;
 import java.util.Optional;
-import com.api.library.model.Library;
+import com.api.library.model.Book;
 
 @Service
 public class LibraryService{
@@ -18,7 +18,7 @@ public class LibraryService{
     }
 
     public boolean checkBookAlreadyExists(String id){
-        Optional<Library> lib = repository.findById(id);
-        return lib.isPresent();
+        Optional<Book> book = repository.findById(id);
+        return book.isPresent();
     }
 }
