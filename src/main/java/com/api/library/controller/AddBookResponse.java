@@ -2,12 +2,9 @@ package com.api.library.controller;
 
 import org.springframework.stereotype.Component;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
-@Component
+@Data
 public class AddBookResponse{
     private String message;
     private String id;

@@ -27,25 +27,23 @@ public class LibraryController{
     LibraryRepository repository;
 
     @Autowired
-    AddBookResponse add; 
-
-    @Autowired
     LibraryService service;
 
     @PostMapping("/book") 
     public ResponseEntity addBook(@RequestBody Book book){
         String id = service.buildId(book.getIsbn(), book.getAisle());
         HttpHeaders headers = new HttpHeaders();
+        AddBookResponse response = new AddBookResponse();
         headers.add("environment","QA");
-        add.setId(id);
+        response.setId(id);
         if(!service.checkBookAlreadyExists(id)){
             book.setId(id);
             repository.save(book);
-            add.setMessage("Book successfully added");
-            return new ResponseEntity<AddBookResponse>(add, headers,HttpStatus.CREATED);
+            response.setMessage("Book successfully added");
+            return new ResponseEntity<>(response, headers,HttpStatus.CREATED);
         }else{
-            add.setMessage("Book already exists");
-            return new ResponseEntity<AddBookResponse>(add, headers,HttpStatus.ACCEPTED);
+            response.setMessage("Book already exists");
+            return new ResponseEntity<>(response, headers,HttpStatus.ACCEPTED);
         }
     }
 
