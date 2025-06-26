@@ -13,12 +13,4 @@ public class LibraryService{
     @Autowired
     LibraryRepository repository;
 
-    public String buildId(String isbn, int aisle){
-       return isbn + Integer.toString(aisle); 
-    }
-
-    public boolean checkBookAlreadyExists(String id){
-        Optional<Book> book = repository.findById(id);
-        return book.isPresent();
-    }
 }

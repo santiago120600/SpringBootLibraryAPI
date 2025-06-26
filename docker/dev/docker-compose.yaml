@@ -16,7 +16,6 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     volumes:
       - ../../src:/app/src
       - ../../pom.xml:/app/pom.xml
