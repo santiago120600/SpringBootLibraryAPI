@@ -7,7 +7,7 @@ public class BookResponse{
     private Integer id;
     private String message;
     private String isbn;
-    private int aisle;
+    private Integer aisle;
     private AuthorResponse author;
 }
 

@@ -28,7 +28,7 @@ public class Book {
     private String isbn;
 
     @Column(name="aisle_number")
-    private int aisle;
+    private Integer aisle;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="author_id", nullable = false)
