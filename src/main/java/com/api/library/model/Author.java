@@ -18,7 +18,10 @@ public class Author{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name="name", nullable = false)
-    private String author_name;
+    @Column(name="first_name", nullable = false)
+    private String firstName;
+
+    @Column(name="last_name", nullable = false)
+    private String lastName;
 
 }

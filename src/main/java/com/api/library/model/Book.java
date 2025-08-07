@@ -17,7 +17,7 @@ import lombok.Data;
 public class Book {
 
     @Column(name="title", nullable = false)
-    private String book_name;
+    private String title;
 
     @Id
     @Column(name="id")
@@ -28,9 +28,9 @@ public class Book {
     private String isbn;
 
     @Column(name="aisle_number")
-    private Integer aisle;
+    private Integer aisleNumber;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="author_id", nullable = false)
-    private Author author; 
+    private Author author;
 }

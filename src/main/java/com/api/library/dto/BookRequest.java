@@ -1,11 +1,15 @@
 package com.api.library.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 @Data
 public class BookRequest{
-    private String book_name;
+    private String title;
     private String isbn;
-    private int aisle;
+    @JsonProperty("aisle_number")
+    private int aisleNumber;
+    @JsonProperty("author_id")
     private Integer authorId;
 }

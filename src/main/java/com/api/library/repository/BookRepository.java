@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.api.library.model.Book;
 
-public interface LibraryRepository extends JpaRepository<Book, Integer> {
-    @Query("SELECT b FROM Book b WHERE b.author.author_name = ?1")
+public interface BookRepository extends JpaRepository<Book, Integer> {
+    @Query("SELECT b FROM Book b WHERE b.author.firstName = ?1")
     List<Book> findByAuthorName(String authorName);
     Book findByIsbn(String isbn);
 }

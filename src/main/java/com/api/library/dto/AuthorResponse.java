@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class AuthorResponse{
     private Integer id;
-    private String name;
+    private String firstName;
+    private String lastName;
+    private String message;
 }
 
