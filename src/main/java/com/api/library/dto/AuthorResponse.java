@@ -7,6 +7,5 @@ public class AuthorResponse{
     private Integer id;
     private String firstName;
     private String lastName;
-    private String message;
 }
 
