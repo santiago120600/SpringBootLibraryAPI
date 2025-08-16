@@ -55,6 +55,7 @@ public class LibraryController{
             response.setId(savedBook.getId());
             response.setIsbn(savedBook.getIsbn());
             response.setAisleNumber(savedBook.getAisleNumber());
+            response.setTitle(savedBook.getTitle());
             AuthorResponse authorResponse = new AuthorResponse();
             authorResponse.setId(author.getId());
             authorResponse.setFirstName(author.getFirstName());
