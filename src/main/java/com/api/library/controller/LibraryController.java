@@ -1,10 +1,14 @@
 package com.api.library.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +25,7 @@ import com.api.library.dto.AuthorRequest;
 import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.BookRequest;
 import com.api.library.dto.BookResponse;
+import com.api.library.dto.Pagination;
 import com.api.library.dto.ResponseWrapper;
 import com.api.library.model.Author;
 import com.api.library.model.Book;
@@ -84,9 +89,38 @@ public class LibraryController{
     }
 
     @GetMapping(path = "/books")
-    public ResponseEntity<List<Book>> getBooks(){
-        List<Book> books = bookRepository.findAll();
-        return new ResponseEntity<>(books,HttpStatus.OK);
+    public ResponseEntity<ResponseWrapper> getBooks(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Book> bookPage = bookRepository.findAll(pageable);
+        List<BookResponse> bookResponses = bookPage.getContent().stream().map(book -> {
+            BookResponse response = new BookResponse();
+            response.setId(book.getId());
+            response.setTitle(book.getTitle());
+            response.setIsbn(book.getIsbn());
+            response.setAisleNumber(book.getAisleNumber());
+            AuthorResponse authorResponse = new AuthorResponse();
+            authorResponse.setId(book.getAuthor().getId());
+            authorResponse.setFirstName(book.getAuthor().getFirstName());
+            authorResponse.setLastName(book.getAuthor().getLastName());
+            response.setAuthor(authorResponse);
+            return response;
+        }).collect(Collectors.toList());
+
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setMessage("Books retrieved successfully");
+        responseWrapper.setStatus("success");
+        responseWrapper.setData(bookResponses);
+
+        Pagination pagination = new Pagination();
+        pagination.setCurrentPage(bookPage.getNumber());
+        pagination.setPageSize(bookPage.getSize());
+        pagination.setTotalElements(bookPage.getTotalElements());
+        pagination.setTotalPages(bookPage.getTotalPages());
+        responseWrapper.setPagination(pagination);
+
+        return new ResponseEntity<>(responseWrapper, HttpStatus.OK);
     }
 
     @GetMapping("/books/{id}")
@@ -108,16 +142,6 @@ public class LibraryController{
             responseWrapper.setStatus("success");
             responseWrapper.setData(response);
             return new ResponseEntity<>(responseWrapper, HttpStatus.OK);
-        }catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping(path = "/books", params = "authorName")
-    public ResponseEntity<List<Book>> getBookByAuthor(@RequestParam(value = "authorName")String authorName){
-        try{
-           List<Book> books = bookRepository.findByAuthorName(authorName); 
-           return new ResponseEntity<>(books, HttpStatus.OK);
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -171,9 +195,32 @@ public class LibraryController{
     }
 
     @GetMapping(path = "/authors")
-    public ResponseEntity<List<Author>> getAuthors(){
-        List<Author> authors = authorRepository.findAll();
-        return new ResponseEntity<>(authors,HttpStatus.OK);
+    public ResponseEntity<ResponseWrapper> getAuthors(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Author> authorPage = authorRepository.findAll(pageable);
+
+        List<AuthorResponse> authorResponses = authorPage.getContent().stream().map(author -> {
+            AuthorResponse response = new AuthorResponse();
+            response.setId(author.getId());
+            response.setFirstName(author.getFirstName());
+            response.setLastName(author.getLastName());
+            return response;
+        }).collect(Collectors.toList());
+
+        ResponseWrapper responseWrapper = new ResponseWrapper();
+        responseWrapper.setMessage("Authors retrieved successfully");
+        responseWrapper.setStatus("success");
+        responseWrapper.setData(authorResponses);
+        Pagination pagination = new Pagination();
+        pagination.setCurrentPage(authorPage.getNumber());
+        pagination.setPageSize(authorPage.getSize());
+        pagination.setTotalElements(authorPage.getTotalElements());
+        pagination.setTotalPages(authorPage.getTotalPages());
+        responseWrapper.setPagination(pagination);
+
+        return new ResponseEntity<>(responseWrapper, HttpStatus.OK);
     }
 
     @GetMapping("/authors/{id}")

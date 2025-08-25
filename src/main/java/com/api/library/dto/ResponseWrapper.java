@@ -7,4 +7,5 @@ public class ResponseWrapper {
     private String message;
     private String status;
     private Object data;
+    private Pagination pagination;
 }
