@@ -3,8 +3,6 @@ package com.api.library.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +30,9 @@ import com.api.library.model.Book;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.repository.BookRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 public class LibraryController{
 
@@ -41,14 +42,11 @@ public class LibraryController{
     @Autowired
     AuthorRepository authorRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(LibraryController.class);
-
     @PostMapping("/books") 
     public ResponseEntity<ResponseWrapper> addBook(@RequestBody BookRequest bookRequest){
         BookResponse response = new BookResponse();
         Book existingBook = bookRepository.findByIsbn(bookRequest.getIsbn());
         if(existingBook == null){
-            logger.info("Book does not exists so creating one");
             Book book = new Book();
             book.setIsbn(bookRequest.getIsbn());
             book.setTitle(bookRequest.getTitle());

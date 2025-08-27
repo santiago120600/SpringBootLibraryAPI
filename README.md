@@ -22,4 +22,7 @@ The production environment is optimized for deployment, with no debugging or liv
    ```
 
 ### Swagger
-`http://server:port/swagger-ui.html`
+`http://localhost:8080/swagger-ui.html`
+
+### Kibana Dashboard
+`http://localhost:5601/app/kibana#/`
