@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -25,6 +27,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class LoggingFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
+
+    @Autowired
+    private Environment environment;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -52,7 +57,11 @@ public class LoggingFilter implements Filter {
             String requestBody = getRequestBody(wrappedRequest);
             MDC.put("requestHeaders", getHeaders(httpRequest));
             MDC.put("requestBody", requestBody);
-            logRequest(wrappedRequest);
+
+            if (!isProdProfile() || isErrorStatus(httpResponse.getStatus())) {
+                logRequest(wrappedRequest);
+            }
+
             MDC.remove("requestBody");
             MDC.remove("requestHeaders");
         } finally {
@@ -66,11 +75,22 @@ public class LoggingFilter implements Filter {
             wrappedResponse.copyBodyToResponse();
 
             MDC.put("responseHeaders", getHeaders(httpResponse));
-            logResponse(httpResponse, processingTime);
-            // MDC.remove("responseBody");
+
+            if (!isProdProfile() || isErrorStatus(httpResponse.getStatus())) {
+                logResponse(httpResponse, processingTime);
+            }
 
             MDC.clear();
         }
+    }
+
+    private boolean isProdProfile() {
+        return environment.getActiveProfiles().length > 0 &&
+               java.util.Arrays.asList(environment.getActiveProfiles()).contains("prod");
+    }
+
+    private boolean isErrorStatus(int status) {
+        return status >= 400; // 4xx (client errors) and 5xx (server errors)
     }
 
     private void logRequest(HttpServletRequest request) {
