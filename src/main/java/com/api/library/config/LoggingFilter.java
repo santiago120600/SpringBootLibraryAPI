@@ -44,6 +44,9 @@ public class LoggingFilter implements Filter {
         MDC.put("requestId", requestId);
         MDC.put("method", wrappedRequest.getMethod());
         MDC.put("uri", wrappedRequest.getRequestURI());
+        MDC.put("queryString", wrappedRequest.getQueryString());
+        MDC.put("url", wrappedRequest.getRequestURL().toString());
+        MDC.put("path", wrappedRequest.getServletPath());
         MDC.put("userAgent", wrappedRequest.getHeader("User-Agent"));
         MDC.put("clientIp", getClientIpAddress(wrappedRequest));
         MDC.put("protocol", wrappedRequest.getProtocol());
