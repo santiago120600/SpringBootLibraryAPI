@@ -30,3 +30,5 @@ build/
 !**/src/test/**/build/
 
 mysql_data
+kibana-data
+elasticsearch-data

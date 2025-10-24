@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "docker compose up build dev",
+			"type": "shell",
+			"command": "docker-compose",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"--env-file",
+				".env", 
+				"-f", 
+				"docker/dev/docker-compose.yaml",
+				"up",
+				"--build",
+				"-d"
+			],
+			"problemMatcher": []
+		},
+		{
+			"label": "docker compose up build prod",
+			"type": "shell",
+			"command": "docker-compose",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"--env-file",
+				".env", 
+				"-f", 
+				"docker/prod/docker-compose.yaml",
+				"up",
+				"--build",
+				"-d"
+			],
+			"problemMatcher": []
+		},
+	]
+}

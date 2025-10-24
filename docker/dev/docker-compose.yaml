@@ -40,7 +40,6 @@ services:
       - library-network
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
-    container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
@@ -48,14 +47,13 @@ services:
       - xpack.security.enabled=true
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - ./elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
     networks:
       - library-network
   kibana:
     image: docker.elastic.co/kibana/kibana:7.12.1
-    container_name: kibana
     ports:
       - 5601:5601
     environment:
@@ -65,14 +63,13 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     volumes:
       - ../../kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
-      - kibana-data:/usr/share/kibana/data
+      - ./kibana-data:/usr/share/kibana/data
     depends_on:
       - elasticsearch
     networks:
       - library-network
   logstash:
     image: docker.elastic.co/logstash/logstash:7.12.1
-    container_name: library-logstash-dev
     restart: always
     volumes:
       - ../../logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
