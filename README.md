@@ -20,9 +20,23 @@ The production environment is optimized for deployment, with no debugging or liv
    ```bash
    docker-compose --env-file .env -f docker/prod/docker-compose.yaml up --build -d
    ```
+### MYSQL Default Credentials
 
-### Swagger
-`http://localhost:8080/swagger-ui.html`
+| Username | Password   |
+|----------|------------|
+| `santi`  | `password` |
+
+### Swagger UI
+`http://localhost/swagger-ui/index.html`
+
+### Swagger Docs
+`http://localhost/v3/api-docs`
 
 ### Kibana Dashboard
-`http://localhost:5601/app/kibana#/`
+`http://localhost/kibana`
+
+#### Default Credentials
+
+| Username  | Password    |
+|-----------|-------------|
+| `elastic` | `password1` |

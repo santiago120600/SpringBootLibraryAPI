@@ -32,3 +32,4 @@ build/
 mysql_data
 kibana-data
 elasticsearch-data
+nginx-data

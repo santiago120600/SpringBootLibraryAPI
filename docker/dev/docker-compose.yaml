@@ -54,8 +54,6 @@ services:
       - library-network
   kibana:
     image: docker.elastic.co/kibana/kibana:7.12.1
-    ports:
-      - 5601:5601
     environment:
       - ELASTICSEARCH_USERNAME=${ELASTIC_USERNAME}
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
@@ -82,6 +80,18 @@ services:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     depends_on:
       - elasticsearch
+    networks:
+      - library-network
+  nginx:
+    image: nginx:1.29.3-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ../../nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx-data/logs:/var/log/nginx
+    depends_on:
+      - api_service
+      - kibana
     networks:
       - library-network
 volumes:

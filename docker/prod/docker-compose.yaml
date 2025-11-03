@@ -5,8 +5,6 @@ services:
       dockerfile: docker/prod/Dockerfile
     container_name: library-api-prod
     restart: on-failure
-    ports:
-      - 8080:8080
     depends_on:
       - mysqldb
       - logstash
@@ -24,8 +22,6 @@ services:
     restart: always
     volumes:
       - ./mysql_data:/var/lib/mysql
-    ports:
-      - 3306:3306
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USERNAME}
@@ -43,14 +39,10 @@ services:
         - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       volumes:
         - ./elasticsearch-data:/usr/share/elasticsearch/data
-      ports:
-        - 9200:9200
       networks:
         - library-network
   kibana:
     image: docker.elastic.co/kibana/kibana:7.12.1
-    ports:
-      - 5601:5601
     environment:
       - ELASTICSEARCH_USERNAME=${ELASTIC_USERNAME}
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
@@ -69,14 +61,24 @@ services:
     volumes:
       - ../../logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ../../logstash/pipeline:/usr/share/logstash/pipeline
-    ports:
-      - 5000:5000
     environment:
       - LS_JAVA_OPTS=-Xms512m -Xmx512m
       - ELASTIC_USERNAME=${ELASTIC_USERNAME}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     depends_on:
       - elasticsearch
+    networks:
+      - library-network
+  nginx:
+    image: nginx:1.29.3-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ../../nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx-data/logs:/var/log/nginx
+    depends_on:
+      - api_service
+      - kibana
     networks:
       - library-network
 volumes:
