@@ -1,4 +1,4 @@
-package com.api.library.service.impl;
+package com.api.library.service.impl.v2;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ import com.api.library.model.Author;
 import com.api.library.model.Book;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.repository.BookRepository;
-import com.api.library.service.BookService;
+import com.api.library.service.v2.BookService;
 
 @Service
 public class BookServiceImpl implements BookService {

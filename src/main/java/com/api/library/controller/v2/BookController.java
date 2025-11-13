@@ -1,4 +1,4 @@
-package com.api.library.controller;
+package com.api.library.controller.v2;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.api.library.dto.BookRequest;
 import com.api.library.dto.ResponseWrapper;
-import com.api.library.service.BookService;
+import com.api.library.service.v2.BookService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,20 +26,20 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1")
-@Tag(name = "Book API", description = "API endpoints for managing books")
+@RequestMapping("/api/v2/books")
+@Tag(name = "Book API V2", description = "API endpoints for managing books - Version 2")
 public class BookController {
 
     @Autowired
     private BookService bookService;
 
-    @PostMapping("/books")
+    @PostMapping
     @Operation(summary = "Add a new book", description = "Creates a new book with the given details")
     public ResponseEntity<ResponseWrapper> addBook(@Valid @RequestBody BookRequest bookRequest) {
         return new ResponseEntity<>(bookService.addBook(bookRequest, bookRequest.getAuthorId()), HttpStatus.CREATED);
     }
 
-    @GetMapping(path = "/books")
+    @GetMapping
     @Operation(summary = "Get all books", description = "Returns a paginated list of all books")
     public ResponseEntity<ResponseWrapper> getBooks(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -48,19 +48,19 @@ public class BookController {
         return new ResponseEntity<>(bookService.getAllBooks(pageable), HttpStatus.OK);
     }
 
-    @GetMapping("/books/{id}")
+    @GetMapping("/{id}")
     @Operation(summary = "Get a book by ID", description = "Returns a book by its ID")
     public ResponseEntity<ResponseWrapper> getBookById(@PathVariable(value = "id") Integer id) {
         return new ResponseEntity<>(bookService.getBookById(id), HttpStatus.OK);
     }
 
-    @PutMapping("/books/{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Update a book", description = "Updates an existing book's details")
     public ResponseEntity<ResponseWrapper> updateBook(@PathVariable(value = "id") Integer id, @Valid @RequestBody BookRequest bookRequest) {
         return new ResponseEntity<>(bookService.updateBook(id, bookRequest), HttpStatus.OK);
     }
 
-    @DeleteMapping("/books/{id}")
+    @DeleteMapping("/{id}")
     @Operation(summary = "Delete a book", description = "Deletes a book by its ID")
     public ResponseEntity<ResponseWrapper> deleteBook(@PathVariable(value = "id") Integer id) {
         return new ResponseEntity<>(bookService.deleteBook(id), HttpStatus.OK);

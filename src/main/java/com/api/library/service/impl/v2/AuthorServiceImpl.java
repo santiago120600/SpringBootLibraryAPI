@@ -1,4 +1,4 @@
-package com.api.library.service.impl;
+package com.api.library.service.impl.v2;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +16,7 @@ import com.api.library.dto.Pagination;
 import com.api.library.dto.ResponseWrapper;
 import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
-import com.api.library.service.AuthorService;
+import com.api.library.service.v2.AuthorService;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
