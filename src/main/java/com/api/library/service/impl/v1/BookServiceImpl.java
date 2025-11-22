@@ -1,11 +1,9 @@
-package com.api.library.service.impl.v2;
+package com.api.library.service.impl.v1;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,15 +11,13 @@ import org.springframework.web.server.ResponseStatusException;
 import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.BookRequest;
 import com.api.library.dto.BookResponse;
-import com.api.library.dto.Pagination;
-import com.api.library.dto.ResponseWrapper;
 import com.api.library.model.Author;
 import com.api.library.model.Book;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.repository.BookRepository;
-import com.api.library.service.v2.BookService;
+import com.api.library.service.v1.BookService;
 
-@Service("bookServiceImplV2")
+@Service("bookServiceImplV1")
 public class BookServiceImpl implements BookService {
 
     @Autowired
@@ -31,60 +27,37 @@ public class BookServiceImpl implements BookService {
     private AuthorRepository authorRepository;
 
     @Override
-    public ResponseWrapper addBook(BookRequest bookRequest, Integer authorId) {
+    public BookResponse addBook(BookRequest bookRequest, Integer authorId) {
         Book existingBook = bookRepository.findByIsbn(bookRequest.getIsbn());
-        ResponseWrapper responseWrapped = new ResponseWrapper();
         if (existingBook == null) {
             Book savedBook = bookRepository.save(mapToEntity(bookRequest));
-            responseWrapped.setMessage("Book added successfully");
-            responseWrapped.setStatus("success");
-            responseWrapped.setData(mapToDTO(savedBook));
+            return mapToDTO(savedBook);
         } else {
-            responseWrapped.setMessage("Book already exists");
-            responseWrapped.setStatus("failure");
-            responseWrapped.setData(mapToDTO(existingBook));
+            return mapToDTO(existingBook);
         }
-        return responseWrapped;
     }
 
     @Override
-    public ResponseWrapper getAllBooks(Pageable pageable) {
-        Page<Book> bookPage = bookRepository.findAll(pageable);
-        List<BookResponse> bookResponses = bookPage.getContent().stream().map(book -> {
+    public List<BookResponse> getAllBooks() {
+        List<BookResponse> bookResponses = bookRepository.findAll().stream().map(book -> {
             return mapToDTO(book);
         }).collect(Collectors.toList());
 
-        ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setMessage("Books retrieved successfully");
-        responseWrapper.setStatus("success");
-        responseWrapper.setData(bookResponses);
-
-        Pagination pagination = new Pagination();
-        pagination.setCurrentPage(bookPage.getNumber());
-        pagination.setPageSize(bookPage.getSize());
-        pagination.setTotalElements(bookPage.getTotalElements());
-        pagination.setTotalPages(bookPage.getTotalPages());
-        responseWrapper.setPagination(pagination);
-
-        return responseWrapper;
+        return bookResponses;
     }
 
     @Override
-    public ResponseWrapper getBookById(Integer id) {
+    public BookResponse getBookById(Integer id) {
         try {
             Book book = bookRepository.findById(id).get();
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setMessage("Book retrieved successfully");
-            responseWrapper.setStatus("success");
-            responseWrapper.setData(mapToDTO(book));
-            return responseWrapper;
+            return mapToDTO(book);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
-    public ResponseWrapper updateBook(Integer id, BookRequest bookRequest) {
+    public BookResponse updateBook(Integer id, BookRequest bookRequest) {
         try {
             Book book = bookRepository.findById(id).get();
             book.setAisleNumber(bookRequest.getAisleNumber());
@@ -95,27 +68,18 @@ public class BookServiceImpl implements BookService {
             ;
             book.setAuthor(author);
             bookRepository.save(book);
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setMessage("Book updated successfully");
-            responseWrapper.setStatus("success");
-            responseWrapper.setData(mapToDTO(book));
-            return responseWrapper;
+            return mapToDTO(book);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
-    public ResponseWrapper deleteBook(Integer id) {
+    public BookResponse deleteBook(Integer id) {
         try {
             Book book = bookRepository.findById(id).get();
             bookRepository.delete(book);
-            BookResponse response = new BookResponse();
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setMessage("Book deleted successfully");
-            responseWrapper.setStatus("success");
-            responseWrapper.setData(response);
-            return responseWrapper;
+            return mapToDTO(book);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

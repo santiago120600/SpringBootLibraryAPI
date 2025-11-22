@@ -18,7 +18,7 @@ import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.v2.AuthorService;
 
-@Service
+@Service("authorServiceImplV2")
 public class AuthorServiceImpl implements AuthorService {
 
     @Autowired

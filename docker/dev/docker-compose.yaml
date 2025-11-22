@@ -13,6 +13,7 @@ services:
       - logstash
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      SPRING_APPLICATION_NAME: library-api
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/APIDevelopSpringBoot?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true"
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -44,7 +45,7 @@ services:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=true
+      - xpack.security.enabled=false
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
       - ./elasticsearch-data:/usr/share/elasticsearch/data
@@ -54,6 +55,8 @@ services:
       - library-network
   kibana:
     image: docker.elastic.co/kibana/kibana:7.12.1
+    ports:
+      - 5601:5601
     environment:
       - ELASTICSEARCH_USERNAME=${ELASTIC_USERNAME}
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}

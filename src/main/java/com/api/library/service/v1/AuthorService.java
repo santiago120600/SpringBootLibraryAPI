@@ -1,0 +1,19 @@
+package com.api.library.service.v1;
+
+import java.util.List;
+
+import com.api.library.dto.AuthorRequest;
+import com.api.library.dto.AuthorResponse;
+
+public interface AuthorService {
+
+    AuthorResponse addAuthor(AuthorRequest author);
+
+    List<AuthorResponse> getAllAuthors();
+
+    AuthorResponse getAuthorById(Integer id);
+
+    AuthorResponse updateAuthor(Integer id, AuthorRequest authorDetails);
+
+    AuthorResponse deleteAuthor(Integer id);
+}

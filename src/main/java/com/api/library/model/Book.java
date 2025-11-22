@@ -20,13 +20,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Book {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id")
+    private Integer id;
+
     @Column(name="title", nullable = false)
     private String title;
 
-    @Id
-    @Column(name="id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
 
     @Column(name="isbn", unique = true, nullable = false)
     private String isbn;

@@ -6,7 +6,7 @@
 
 - **Start the Environment**:
    ```bash
-   docker-compose --env-file .env -f docker/dev/docker-compose.yaml up --build -d
+   docker-compose -f docker/dev/docker-compose.yaml up --build -d
    ```
    - Builds the JAR automatically using Maven.
    - Starts the API on `http://localhost:8080` and MySQL on `localhost:3306`.
@@ -18,7 +18,7 @@ The production environment is optimized for deployment, with no debugging or liv
 
 - **Start the Environment**:
    ```bash
-   docker-compose --env-file .env -f docker/prod/docker-compose.yaml up --build -d
+   docker-compose -f docker/prod/docker-compose.yaml up --build -d
    ```
 ### MYSQL Default Credentials
 

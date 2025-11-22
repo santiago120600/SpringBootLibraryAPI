@@ -9,8 +9,6 @@
 				"cwd": "${workspaceFolder}"
 			},
 			"args": [
-				"--env-file",
-				".env", 
 				"-f", 
 				"docker/dev/docker-compose.yaml",
 				"up",
@@ -27,8 +25,6 @@
 				"cwd": "${workspaceFolder}"
 			},
 			"args": [
-				"--env-file",
-				".env", 
 				"-f", 
 				"docker/prod/docker-compose.yaml",
 				"up",

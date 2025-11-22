@@ -5,7 +5,14 @@
         defaultValue="library-api" />
 
 
-    <!-- TCP Appender to ship JSON logs to Logstash -->
+    <!-- 1. pretty console -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 2. JSON → Logstash -->
     <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
         <destination>logstash:5000</destination>
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
@@ -28,8 +35,8 @@
         </encoder>
     </appender>
 
-    <!-- Root Logger -->
     <root level="INFO">
-        <appender-ref ref="LOGSTASH" />
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOGSTASH"/>
     </root>
 </configuration>
