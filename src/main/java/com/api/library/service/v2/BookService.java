@@ -9,7 +9,7 @@ public interface BookService {
 
     ResponseWrapper  addBook(BookRequest book, Integer authorId);
 
-    ResponseWrapper  getAllBooks(Pageable pageable);
+    ResponseWrapper  getAllBooks(Pageable pageable, BookRequest.BookRequestBuilder filterBuilder);
 
     ResponseWrapper  getBookById(Integer id);
 

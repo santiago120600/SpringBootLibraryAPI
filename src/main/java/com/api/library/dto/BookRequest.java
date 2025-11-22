@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class BookRequest{
     @NotBlank(message = "Title is required")
     @Size(max = 255, message = "Title cannot exceed 255 characters")
@@ -19,7 +21,7 @@ public class BookRequest{
 
     @NotNull(message = "Aisle number is required")
     @JsonProperty("aisle_number")
-    private int aisleNumber;
+    private Integer aisleNumber;
 
     @NotNull(message = "Author ID is required")
     @JsonProperty("author_id")

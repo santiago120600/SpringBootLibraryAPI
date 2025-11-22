@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,6 +19,8 @@ import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.v2.AuthorService;
 
+import static com.api.library.repository.AuthorSpecs.filterBy;
+
 @Service("authorServiceImplV2")
 public class AuthorServiceImpl implements AuthorService {
 
@@ -27,43 +30,35 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public ResponseWrapper addAuthor(AuthorRequest authorRequest) {
         Author savedAuthor = authorRepository.save(mapToEntity(authorRequest));
-        ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setMessage("Author added successfully");
-        responseWrapper.setStatus("success");
-        responseWrapper.setData(mapToDTO(savedAuthor));
-        return responseWrapper;
+        return wrap("Author added successfully", "success",mapToDTO(savedAuthor));
     }
 
     @Override
-    public ResponseWrapper getAllAuthors(Pageable pageable) {
-        Page<Author> authorPage = authorRepository.findAll(pageable);
+    public ResponseWrapper getAllAuthors(Pageable pageable, AuthorRequest.AuthorRequestBuilder filterBuilder) {
+        AuthorRequest filter = filterBuilder.build();
+
+        Specification<Author> spec = filterBy(filter.getFirstName(), filter.getLastName());
+
+        Page<Author> authorPage = authorRepository.findAll(spec, pageable);
 
         List<AuthorResponse> authorResponses = authorPage.getContent().stream().map(author -> {
             return mapToDTO(author);
         }).collect(Collectors.toList());
 
-        ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setMessage("Authors retrieved successfully");
-        responseWrapper.setStatus("success");
-        responseWrapper.setData(authorResponses);
-        Pagination pagination = new Pagination();
-        pagination.setCurrentPage(authorPage.getNumber());
-        pagination.setPageSize(authorPage.getSize());
-        pagination.setTotalElements(authorPage.getTotalElements());
-        pagination.setTotalPages(authorPage.getTotalPages());
-        responseWrapper.setPagination(pagination);
-        return responseWrapper;
+        Pagination pagination = Pagination.builder()
+                .currentPage(authorPage.getNumber())
+                .pageSize(authorPage.getSize())
+                .totalElements(authorPage.getTotalElements())
+                .totalPages(authorPage.getTotalPages())
+                .build();
+        return wrap("Authors retrieved successfully", "success", authorResponses, pagination);
     }
 
     @Override
     public ResponseWrapper getAuthorById(Integer id) {
          try{
             Author author = authorRepository.findById(id).get();
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setMessage("Author retrieved successfully");
-            responseWrapper.setStatus("success");
-            responseWrapper.setData(mapToDTO(author));
-            return responseWrapper;
+            return wrap("Author retrieved successfully", "success", mapToDTO(author));
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -76,11 +71,7 @@ public class AuthorServiceImpl implements AuthorService {
             author.setFirstName(authorRequest.getFirstName());
             author.setLastName(authorRequest.getLastName());
             authorRepository.save(author);
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setData(mapToDTO(author));
-            responseWrapper.setStatus("success");
-            responseWrapper.setMessage("Author updated successfully");
-            return responseWrapper;
+            return wrap("Author updated successfully", "success", mapToDTO(author));
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -92,28 +83,37 @@ public class AuthorServiceImpl implements AuthorService {
             Author author = authorRepository.findById(id).get();
             authorRepository.delete(author);
             AuthorResponse response = new AuthorResponse();
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setStatus("success");
-            responseWrapper.setData(response);
-            responseWrapper.setMessage("Author deleted successfully");
-            return responseWrapper;
+            return wrap("Author deleted successfully", "success", response);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     private AuthorResponse mapToDTO(Author author) {
-        AuthorResponse response = new AuthorResponse();
-        response.setId(author.getId());
-        response.setFirstName(author.getFirstName());
-        response.setLastName(author.getLastName());
-        return response;
+        return AuthorResponse.builder()
+                .id(author.getId())
+                .firstName(author.getFirstName())
+                .lastName(author.getLastName())
+                .build();
     }
 
     private Author mapToEntity(AuthorRequest authorRequest) {
-        Author author = new Author();
-        author.setFirstName(authorRequest.getFirstName());
-        author.setLastName(authorRequest.getLastName());
-        return author;
+        return Author.builder()
+                .firstName(authorRequest.getFirstName())
+                .lastName(authorRequest.getLastName())
+                .build();
+    }
+
+    private ResponseWrapper wrap(String msg, String status, Object data) {
+        return wrap(msg, status, data, null);
+    }
+
+    private ResponseWrapper wrap(String msg, String status,Object data, Pagination p) {
+        return ResponseWrapper.builder()
+                .message(msg)
+                .status(status)
+                .data(data)
+                .pagination(p)
+                .build();
     }
 }

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,6 +22,8 @@ import com.api.library.repository.AuthorRepository;
 import com.api.library.repository.BookRepository;
 import com.api.library.service.v2.BookService;
 
+import static com.api.library.repository.BookSpecs.filterBy;
+
 @Service("bookServiceImplV2")
 public class BookServiceImpl implements BookService {
 
@@ -33,51 +36,38 @@ public class BookServiceImpl implements BookService {
     @Override
     public ResponseWrapper addBook(BookRequest bookRequest, Integer authorId) {
         Book existingBook = bookRepository.findByIsbn(bookRequest.getIsbn());
-        ResponseWrapper responseWrapped = new ResponseWrapper();
         if (existingBook == null) {
             Book savedBook = bookRepository.save(mapToEntity(bookRequest));
-            responseWrapped.setMessage("Book added successfully");
-            responseWrapped.setStatus("success");
-            responseWrapped.setData(mapToDTO(savedBook));
+            return wrap("Book added successfully", "success", mapToDTO(savedBook));
         } else {
-            responseWrapped.setMessage("Book already exists");
-            responseWrapped.setStatus("failure");
-            responseWrapped.setData(mapToDTO(existingBook));
+            return wrap("Book already exists", "failure", mapToDTO(existingBook));
         }
-        return responseWrapped;
     }
 
     @Override
-    public ResponseWrapper getAllBooks(Pageable pageable) {
-        Page<Book> bookPage = bookRepository.findAll(pageable);
+    public ResponseWrapper getAllBooks(Pageable pageable, BookRequest.BookRequestBuilder filterBuilder) {
+        BookRequest filter = filterBuilder.build();
+        Specification<Book> spec = filterBy(filter.getAisleNumber(), filter.getIsbn(), filter.getTitle());
+        Page<Book> bookPage = bookRepository.findAll(spec, pageable);
         List<BookResponse> bookResponses = bookPage.getContent().stream().map(book -> {
             return mapToDTO(book);
         }).collect(Collectors.toList());
 
-        ResponseWrapper responseWrapper = new ResponseWrapper();
-        responseWrapper.setMessage("Books retrieved successfully");
-        responseWrapper.setStatus("success");
-        responseWrapper.setData(bookResponses);
+        Pagination pagination = Pagination.builder()
+                .currentPage(bookPage.getNumber())
+                .pageSize(bookPage.getSize())
+                .totalElements(bookPage.getTotalElements())
+                .totalPages(bookPage.getTotalPages())
+                .build();
 
-        Pagination pagination = new Pagination();
-        pagination.setCurrentPage(bookPage.getNumber());
-        pagination.setPageSize(bookPage.getSize());
-        pagination.setTotalElements(bookPage.getTotalElements());
-        pagination.setTotalPages(bookPage.getTotalPages());
-        responseWrapper.setPagination(pagination);
-
-        return responseWrapper;
+        return wrap("Books retrieved successfully", "success", bookResponses, pagination);
     }
 
     @Override
     public ResponseWrapper getBookById(Integer id) {
         try {
             Book book = bookRepository.findById(id).get();
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setMessage("Book retrieved successfully");
-            responseWrapper.setStatus("success");
-            responseWrapper.setData(mapToDTO(book));
-            return responseWrapper;
+            return wrap("Book retrieved successfully", "success", mapToDTO(book));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -95,11 +85,7 @@ public class BookServiceImpl implements BookService {
             ;
             book.setAuthor(author);
             bookRepository.save(book);
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setMessage("Book updated successfully");
-            responseWrapper.setStatus("success");
-            responseWrapper.setData(mapToDTO(book));
-            return responseWrapper;
+            return wrap("Book updated successfully", "success", mapToDTO(book));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -111,11 +97,7 @@ public class BookServiceImpl implements BookService {
             Book book = bookRepository.findById(id).get();
             bookRepository.delete(book);
             BookResponse response = new BookResponse();
-            ResponseWrapper responseWrapper = new ResponseWrapper();
-            responseWrapper.setMessage("Book deleted successfully");
-            responseWrapper.setStatus("success");
-            responseWrapper.setData(response);
-            return responseWrapper;
+            return wrap("Book deleted successfully", "success", response);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -144,5 +126,18 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
         book.setAuthor(author);
         return book;
-    } 
+    }
+
+    private ResponseWrapper wrap(String msg, String status, Object data) {
+        return wrap(msg, status, data, null);
+    }
+
+    private ResponseWrapper wrap(String msg, String status,Object data, Pagination p) {
+        return ResponseWrapper.builder()
+                .message(msg)
+                .status(status)
+                .data(data)
+                .pagination(p)
+                .build();
+    }
 }

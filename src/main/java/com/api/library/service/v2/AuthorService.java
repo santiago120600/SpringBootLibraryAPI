@@ -9,7 +9,7 @@ public interface AuthorService {
 
     ResponseWrapper addAuthor(AuthorRequest author);
 
-    ResponseWrapper  getAllAuthors(Pageable pageable);
+    ResponseWrapper  getAllAuthors(Pageable pageable, AuthorRequest.AuthorRequestBuilder filterBuilder);
 
     ResponseWrapper  getAuthorById(Integer id);
 

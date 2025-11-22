@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,9 +38,13 @@ public class AuthorController {
     @Operation(summary = "Get all authors", description = "Returns a paginated list of all authors")
     public ResponseEntity<ResponseWrapper> getAuthors(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return new ResponseEntity<>(authorService.getAllAuthors(pageable), HttpStatus.OK);
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(name = "firstName", required = false) String firstName,
+            @RequestParam(name = "lastName", required = false) String lastName,
+            @RequestParam(name = "sort", defaultValue = "lastName") String sort
+        ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        return new ResponseEntity<>(authorService.getAllAuthors(pageable, AuthorRequest.builder().firstName(firstName).lastName(lastName)), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
