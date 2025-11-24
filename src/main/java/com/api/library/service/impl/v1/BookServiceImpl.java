@@ -75,11 +75,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookResponse deleteBook(Integer id) {
+    public void deleteBook(Integer id) {
         try {
             Book book = bookRepository.findById(id).get();
             bookRepository.delete(book);
-            return mapToDTO(book);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

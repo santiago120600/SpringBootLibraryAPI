@@ -60,6 +60,7 @@ public class AuthorController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an author", description = "Deletes an author by their ID")
     public ResponseEntity<AuthorResponse> deleteAuthor(@PathVariable(value = "id") Integer id) {
-        return new ResponseEntity<>(authorService.deleteAuthor(id), HttpStatus.OK);
+        authorService.deleteAuthor(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

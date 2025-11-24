@@ -58,11 +58,10 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public AuthorResponse deleteAuthor(Integer id) {
+    public void deleteAuthor(Integer id) {
         try {
             Author author = authorRepository.findById(id).get();
             authorRepository.delete(author);
-            return mapToDTO(author);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

@@ -15,5 +15,5 @@ public interface BookService {
 
     BookResponse updateBook(Integer id, BookRequest bookDetails);
 
-    BookResponse deleteBook(Integer id);
+    void deleteBook(Integer id);
 }
