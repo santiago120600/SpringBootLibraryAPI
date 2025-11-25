@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.api.library.dto.AuthorRequest;
@@ -34,8 +35,11 @@ public class AuthorController {
 
     @GetMapping
     @Operation(summary = "Get all authors", description = "Returns list of all authors")
-    public ResponseEntity<List<AuthorResponse>> getAuthors() {
-        return new ResponseEntity<>(authorService.getAllAuthors(), HttpStatus.OK);
+    public ResponseEntity<List<AuthorResponse>> getAuthors(
+        @RequestParam(name = "firstName", required = false) String firstName,
+        @RequestParam(name = "lastName", required = false) String lastName
+    ) {
+        return new ResponseEntity<>(authorService.getAllAuthors(AuthorRequest.builder().firstName(firstName).lastName(lastName)), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

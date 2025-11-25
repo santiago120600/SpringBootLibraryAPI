@@ -9,7 +9,7 @@ public interface AuthorService {
 
     AuthorResponse addAuthor(AuthorRequest author);
 
-    List<AuthorResponse> getAllAuthors();
+    List<AuthorResponse> getAllAuthors(AuthorRequest.AuthorRequestBuilder filter);
 
     AuthorResponse getAuthorById(Integer id);
 

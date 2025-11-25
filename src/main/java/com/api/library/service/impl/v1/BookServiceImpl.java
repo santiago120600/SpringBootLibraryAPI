@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +17,7 @@ import com.api.library.model.Book;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.repository.BookRepository;
 import com.api.library.service.v1.BookService;
+import static com.api.library.repository.BookSpecs.filterBy;
 
 @Service("bookServiceImplV1")
 public class BookServiceImpl implements BookService {
@@ -38,8 +40,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> getAllBooks() {
-        List<BookResponse> bookResponses = bookRepository.findAll().stream().map(book -> {
+    public List<BookResponse> getAllBooks(BookRequest.BookRequestBuilder filterBuilder) {
+        BookRequest filter = filterBuilder.build();
+        Specification<Book> spec = filterBy(filter.getAisleNumber(), filter.getIsbn(), filter.getTitle());
+        List<BookResponse> bookResponses = bookRepository.findAll(spec).stream().map(book -> {
             return mapToDTO(book);
         }).collect(Collectors.toList());
 

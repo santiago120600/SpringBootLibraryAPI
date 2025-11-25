@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.api.library.dto.BookRequest;
@@ -42,8 +43,12 @@ public class BookController {
 
     @GetMapping
     @Operation(summary = "Get all books", description = "Returns a paginated list of all books")
-    public ResponseEntity<List<BookResponse>> getBooks() {
-        return new ResponseEntity<>(bookService.getAllBooks(), HttpStatus.OK);
+    public ResponseEntity<List<BookResponse>> getBooks(
+        @RequestParam(name = "title", required = false) String title,
+        @RequestParam(name = "isbn", required = false) String isbn,
+        @RequestParam(name = "aisleNumber", required = false) Integer aisleNumber
+    ) {
+        return new ResponseEntity<>(bookService.getAllBooks(BookRequest.builder().aisleNumber(aisleNumber).title(title).isbn(isbn)), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

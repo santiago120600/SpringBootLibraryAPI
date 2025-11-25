@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,6 +14,7 @@ import com.api.library.dto.AuthorResponse;
 import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.v1.AuthorService;
+import static com.api.library.repository.AuthorSpecs.filterBy;
 
 @Service("authorServiceImplV1")
 public class AuthorServiceImpl implements AuthorService {
@@ -27,8 +29,11 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public List<AuthorResponse> getAllAuthors() {
-        List<AuthorResponse> authorResponses = authorRepository.findAll().stream().map(author -> {
+    public List<AuthorResponse> getAllAuthors(AuthorRequest.AuthorRequestBuilder filterBuilder) {
+        AuthorRequest filter = filterBuilder.build();
+
+        Specification<Author> spec = filterBy(filter.getFirstName(), filter.getLastName());
+        List<AuthorResponse> authorResponses = authorRepository.findAll(spec).stream().map(author -> {
             return mapToDTO(author);
         }).collect(Collectors.toList());
         return authorResponses;

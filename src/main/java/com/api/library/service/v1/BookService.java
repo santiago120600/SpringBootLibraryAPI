@@ -9,7 +9,7 @@ public interface BookService {
 
     BookResponse addBook(BookRequest book, Integer authorId);
 
-    List<BookResponse> getAllBooks();
+    List<BookResponse> getAllBooks(BookRequest.BookRequestBuilder filter);
 
     BookResponse getBookById(Integer id);
 
