@@ -2,12 +2,8 @@ name: Run Unit Tests
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'library/**'  # Only trigger on changes inside the library directory
   pull_request:
     branches: [ main ]
-    paths:
-      - 'library/**'
   workflow_dispatch:
 jobs:
   test:
