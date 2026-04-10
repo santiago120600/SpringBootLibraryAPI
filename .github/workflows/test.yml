@@ -20,3 +20,9 @@ jobs:
           cache-dependency-path: '**/pom.xml'
       - name: Run unit tests
         run: mvn --batch-mode clean test
+      - name: Upload test report
+        uses: actions/upload-artifact@v7
+        with:
+          name: jacoco-report
+          path: |
+            target/site/jacoco/
