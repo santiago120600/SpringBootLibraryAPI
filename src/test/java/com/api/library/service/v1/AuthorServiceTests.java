@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,12 +16,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -43,6 +40,10 @@ import com.api.library.service.impl.v1.AuthorServiceImpl;
 public class AuthorServiceTests {
 
     private final Integer AUTHOR_ID = 1;
+    private final String FIRST_NAME = "John";
+    private final String LAST_NAME = "Doe";
+    private Author author;
+    private AuthorRequest authorDto;
 
     @Mock
     private AuthorRepository authorRepository;
@@ -50,17 +51,29 @@ public class AuthorServiceTests {
     @InjectMocks
     private AuthorServiceImpl authorService;
 
-    @ParameterizedTest
-    @CsvSource({
-            "Juan, Balderas"
-    })
-    public void AuthorService_AddAuthor_ReturnsAuthorDto(String firstName, String lastName) {
-        Author author = Author.builder()
+    private Author createAuthor(Integer id, String firstName, String lastName) {
+        return Author.builder()
+                .id(id)
                 .firstName(firstName)
                 .lastName(lastName)
                 .build();
-        AuthorRequest authorDto = AuthorRequest.builder().firstName(firstName).lastName(lastName).build();
+    }
 
+    private AuthorRequest createAuthorRequest(String firstName, String lastName) {
+        return AuthorRequest.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .build();
+    }
+
+    @BeforeEach
+    public void setUp(){
+        author = createAuthor(AUTHOR_ID, FIRST_NAME, LAST_NAME);
+        authorDto = createAuthorRequest(FIRST_NAME, LAST_NAME);
+    }
+
+    @Test
+    public void AuthorService_AddAuthor_ReturnsAuthorDto() {
         when(authorRepository.save(Mockito.any(Author.class))).thenReturn(author);
         AuthorResponse savedAuthor = authorService.addAuthor(authorDto);
         Assertions.assertNotNull(savedAuthor);
@@ -100,16 +113,8 @@ public class AuthorServiceTests {
         verify(authorRepository, times(1)).findAll(any(Specification.class));
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "Juan, Balderas"
-    })
-    public void AuthorService_GetAuthorById_ReturnsAuthorDto(String firstName, String lastName) {
-        Author author = Author.builder()
-                .id(AUTHOR_ID)
-                .firstName(firstName)
-                .lastName(lastName)
-                .build();
+    @Test
+    public void AuthorService_GetAuthorById_ReturnsAuthorDto() {
         when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.ofNullable(author));
         AuthorResponse authorResponse = authorService.getAuthorById(AUTHOR_ID);
         Assertions.assertNotNull(authorResponse);
@@ -131,21 +136,8 @@ public class AuthorServiceTests {
         verify(authorRepository, times(1)).findById(AUTHOR_ID);
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "Juan, Balderas"
-    })
-    public void AuthorService_UpdateAuthor_ReturnsAuthorDto(String firstName, String lastName) {
-        Author author = Author.builder()
-                .id(AUTHOR_ID)
-                .firstName(firstName)
-                .lastName(lastName)
-                .build();
-        AuthorRequest authorDto = AuthorRequest.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .build();
-
+    @Test
+    public void AuthorService_UpdateAuthor_ReturnsAuthorDto() {
         when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.ofNullable(author));
         when(authorRepository.save(Mockito.any(Author.class))).thenReturn(author);
         AuthorResponse updatedAuthor = authorService.updateAuthor(AUTHOR_ID, authorDto);
@@ -155,15 +147,8 @@ public class AuthorServiceTests {
         Assertions.assertEquals(author.getLastName(), updatedAuthor.getLastName());
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "Juan, Balderas"
-    })
-    public void AuthorService_UpdateAuthor_ThrowNotFound_WhenAuthorDoesNotExist(String firstName, String lastName) {
-        AuthorRequest authorDto = AuthorRequest.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .build();
+    @Test
+    public void AuthorService_UpdateAuthor_ThrowNotFound_WhenAuthorDoesNotExist() {
         when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(
@@ -175,16 +160,8 @@ public class AuthorServiceTests {
         verify(authorRepository, times(1)).findById(AUTHOR_ID);
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "Juan, Balderas"
-    })
-    public void AuthorService_DeleteAuthor_ReturnsVoid(String firstName, String lastName) {
-        Author author = Author.builder()
-                .id(AUTHOR_ID)
-                .firstName(firstName)
-                .lastName(lastName)
-                .build();
+    @Test
+    public void AuthorService_DeleteAuthor_ReturnsVoid() {
         when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.ofNullable(author));
         doNothing().when(authorRepository).delete(author);
         assertAll(() -> authorService.deleteAuthor(AUTHOR_ID));
