@@ -65,6 +65,6 @@ public class AuthorController {
     @Operation(summary = "Delete an author", description = "Deletes an author by their ID")
     public ResponseEntity<AuthorResponse> deleteAuthor(@PathVariable(value = "id") Integer id) {
         authorService.deleteAuthor(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

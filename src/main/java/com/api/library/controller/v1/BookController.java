@@ -67,7 +67,7 @@ public class BookController {
     @Operation(summary = "Delete a book", description = "Deletes a book by its ID")
     public ResponseEntity<BookResponse> deleteBook(@PathVariable(value = "id") Integer id) {
         bookService.deleteBook(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
 }
