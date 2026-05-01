@@ -14,12 +14,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.api.library.dto.AuthorRequest;
+import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.BookRequest;
 import com.api.library.dto.BookResponse;
 import com.api.library.service.v1.BookService;
@@ -32,47 +34,76 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class BookControllerTests {
 
-    @Autowired
-    private MockMvc mockMvc;
+        private BookRequest bookRequest;
+        private BookResponse bookResponse;
+        private AuthorResponse authorResponse;
 
-    @MockBean(name = "bookServiceImplV1")
-    private BookService bookService;
+        private final Integer BOOK_ID = 1;
+        private final String TITLE = "The Great Gatsby";
+        private final String ISBN = "978-3-16-148410-0";
+        private final Integer AISLE_NUMBER = 1;
+        private final Integer AUTHOR_ID = 1;
+        private final String FIRST_NAME = "John";
+        private final String LAST_NAME = "Doe";
 
-    private ObjectMapper objectMapper;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @BeforeEach
-    public void setUp() {
-        objectMapper = new ObjectMapper();
-    }
+        @MockitoBean(name = "bookServiceImplV1")
+        private BookService bookService;
 
-    @Test
-    public void BookController_CreateBook_ReturnCreated() throws JsonProcessingException, Exception {
+        private ObjectMapper objectMapper;
 
-        BookRequest request = BookRequest.builder()
-                .title("The Great Gatsby")
-                .isbn("978-3-16-148410-0")
-                .aisleNumber(1)
-                .authorId(1)
-                .build();
-        BookResponse response = BookResponse.builder()
-                .id(1)
-                .title("The Great Gatsby")
-                .isbn("978-3-16-148410-0")
-                .aisleNumber(1)
-                .author(null)
-                .build();
-        given(bookService.addBook(any(BookRequest.class), eq(1))).willReturn(response);
+        @BeforeEach
+        public void setUp() {
+                objectMapper = new ObjectMapper();
+                bookRequest = createBookRequest(TITLE, ISBN, AISLE_NUMBER, AUTHOR_ID);
+                authorResponse = createAuthorResponse(AUTHOR_ID, FIRST_NAME, LAST_NAME);
+                bookResponse = createBookResponse(BOOK_ID, TITLE, ISBN, AISLE_NUMBER, authorResponse);
+        }
 
-        ResultActions result = mockMvc.perform(
-                post("/api/v1/books")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)));
+        private BookRequest createBookRequest(String title, String isbn, Integer aisleNumber, Integer authorId) {
+                return BookRequest.builder()
+                                .title(title)
+                                .isbn(isbn)
+                                .aisleNumber(aisleNumber)
+                                .authorId(authorId)
+                                .build();
+        }
 
-        result.andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(request.getTitle()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(request.getIsbn()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.aisle_number").value(request.getAisleNumber()));
+        private AuthorResponse createAuthorResponse(Integer id, String firstName, String lastName) {
+                return AuthorResponse.builder()
+                                .id(id)
+                                .firstName(firstName)
+                                .lastName(lastName)
+                                .build();
+        }
 
-    }
+        private BookResponse createBookResponse(Integer id, String title, String isbn, Integer aisleNumber,
+                        AuthorResponse author) {
+                return BookResponse.builder()
+                                .id(id)
+                                .title(title)
+                                .isbn(isbn)
+                                .aisleNumber(aisleNumber)
+                                .author(author)
+                                .build();
+        }
+
+        @Test
+        public void BookController_CreateBook_ReturnCreated() throws JsonProcessingException, Exception {
+                given(bookService.addBook(any(BookRequest.class), eq(AUTHOR_ID))).willReturn(bookResponse);
+
+                ResultActions result = mockMvc.perform(
+                                post("/api/v1/books")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(objectMapper.writeValueAsString(bookRequest)));
+
+                result.andExpect(MockMvcResultMatchers.status().isCreated())
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(BOOK_ID))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(bookRequest.getTitle()))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(bookRequest.getIsbn()))
+                                .andExpect(MockMvcResultMatchers.jsonPath("$.aisle_number")
+                                                .value(bookRequest.getAisleNumber()));
+        }
 }
