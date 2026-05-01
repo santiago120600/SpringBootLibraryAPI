@@ -197,6 +197,22 @@ public class BookServiceTests {
     }
 
     @Test
+    public void BookService_UpdateBook_ThrowNotFound_WhenAuthorDoesNotExist() {
+        when(bookRepository.findById(AUTHOR_ID)).thenReturn(Optional.of(book));
+        when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = Assertions.assertThrows(
+                ResponseStatusException.class,
+                () -> bookService.updateBook(AUTHOR_ID, bookRequest));
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        Assertions.assertEquals("404 NOT_FOUND", exception.getMessage());
+
+        verify(bookRepository, times(1)).findById(AUTHOR_ID);
+        verify(authorRepository, times(1)).findById(AUTHOR_ID);
+        verify(bookRepository, times(0)).save(any(Book.class));
+    }
+
+    @Test
     public void BookService_DeleteBook_ReturnsVoid() {
         when(bookRepository.findById(AUTHOR_ID)).thenReturn(Optional.of(book));
         doNothing().when(bookRepository).delete(book);
