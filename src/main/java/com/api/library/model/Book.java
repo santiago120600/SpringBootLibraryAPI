@@ -1,7 +1,14 @@
 package com.api.library.model;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +23,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="book")
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,4 +48,12 @@ public class Book {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="author_id", nullable = false)
     private Author author;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    protected LocalDateTime createdDate;
+    
+    @LastModifiedDate
+    @Column(nullable = false)
+    private LocalDateTime updatedDate;
 }
