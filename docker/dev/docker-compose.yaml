@@ -29,7 +29,7 @@ services:
     image: "mysql:8.0"
     restart: always
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     ports:
       - 3306:3306
     environment:
@@ -48,7 +48,7 @@ services:
       - xpack.security.enabled=false
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
-      - ./elasticsearch-data:/usr/share/elasticsearch/data
+      - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
     networks:
@@ -64,7 +64,7 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     volumes:
       - ../../kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
-      - ./kibana-data:/usr/share/kibana/data
+      - kibana-data:/usr/share/kibana/data
     depends_on:
       - elasticsearch
     networks:
@@ -91,7 +91,7 @@ services:
       - 80:80
     volumes:
       - ../../nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./nginx-data/logs:/var/log/nginx
+      - nginx-data:/var/log/nginx
     depends_on:
       - api_service
       - kibana
@@ -100,6 +100,7 @@ services:
 volumes:
   mysql_data:
   kibana-data:
+  nginx-data:
   elasticsearch-data:
     driver: local
 

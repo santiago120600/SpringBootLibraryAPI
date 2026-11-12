@@ -2,13 +2,23 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "docker compose up build dev",
+			"label": "podman machine start",
 			"type": "shell",
-			"command": "docker-compose",
+			"command": "podman machine start",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "podman compose up build dev",
+			"type": "shell",
+			"command": "podman",
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
 			"args": [
+				"compose",
 				"-f", 
 				"docker/dev/docker-compose.yaml",
 				"up",
@@ -18,13 +28,14 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "docker compose up build prod",
+			"label": "podman compose up build prod",
 			"type": "shell",
-			"command": "docker-compose",
+			"command": "podman",
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
 			"args": [
+				"compose",
 				"-f", 
 				"docker/prod/docker-compose.yaml",
 				"up",
@@ -33,5 +44,35 @@
 			],
 			"problemMatcher": []
 		},
+		{
+			"label": "podman compose down prod",
+			"type": "shell",
+			"command": "podman",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"compose",
+				"-f", 
+				"docker/prod/docker-compose.yaml",
+				"down"
+			],
+			"problemMatcher": []
+		},
+		{
+			"label": "podman compose down dev",
+			"type": "shell",
+			"command": "podman",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"compose",
+				"-f", 
+				"docker/dev/docker-compose.yaml",
+				"down"
+			],
+			"problemMatcher": []
+		}
 	]
 }
