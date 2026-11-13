@@ -1,5 +1,7 @@
 package com.api.library.service.impl.v1;
 
+import static com.api.library.repository.AuthorSpecs.filterBy;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,56 +9,56 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.api.library.dto.AuthorRequest;
-import com.api.library.dto.AuthorResponse;
 import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.v1.AuthorService;
-import static com.api.library.repository.AuthorSpecs.filterBy;
 
 @Service("authorServiceImplV1")
+@Transactional
 public class AuthorServiceImpl implements AuthorService {
 
     @Autowired
     private AuthorRepository authorRepository;
 
     @Override
-    public AuthorResponse addAuthor(AuthorRequest authorRequest) {
-        Author savedAuthor = authorRepository.save(mapToEntity(authorRequest));
-        return mapToDTO(savedAuthor);
+    public Author addAuthor(Author authorRequest) {
+        Author savedAuthor = authorRepository.save(authorRequest);
+        return savedAuthor;
     }
 
     @Override
-    public List<AuthorResponse> getAllAuthors(AuthorRequest.AuthorRequestBuilder filterBuilder) {
-        AuthorRequest filter = filterBuilder.build();
+    @Transactional(readOnly = true)
+    public List<Author> getAllAuthors(Author.AuthorBuilder filterBuilder) {
+        Author filter = filterBuilder.build();
 
         Specification<Author> spec = filterBy(filter.getFirstName(), filter.getLastName());
-        List<AuthorResponse> authorResponses = authorRepository.findAll(spec).stream().map(author -> {
-            return mapToDTO(author);
+        List<Author> authorResponses = authorRepository.findAll(spec).stream().map(author -> {
+            return author;
         }).collect(Collectors.toList());
         return authorResponses;
     }
 
     @Override
-    public AuthorResponse getAuthorById(Integer id) {
+    @Transactional(readOnly = true)
+    public Author getAuthorById(Integer id) {
          try{
-            Author author = authorRepository.findById(id).get();
-            return mapToDTO(author);
+            return authorRepository.findById(id).get();
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
-    public AuthorResponse updateAuthor(Integer id, AuthorRequest authorRequest) {
+    public Author updateAuthor(Integer id, Author authorRequest) {
          try{
             Author author = authorRepository.findById(id).get();
             author.setFirstName(authorRequest.getFirstName());
             author.setLastName(authorRequest.getLastName());
             authorRepository.save(author);
-            return mapToDTO(author);
+            return author;
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -70,20 +72,5 @@ public class AuthorServiceImpl implements AuthorService {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-    }
-
-    private AuthorResponse mapToDTO(Author author) {
-        AuthorResponse response = new AuthorResponse();
-        response.setId(author.getId());
-        response.setFirstName(author.getFirstName());
-        response.setLastName(author.getLastName());
-        return response;
-    }
-
-    private Author mapToEntity(AuthorRequest authorRequest) {
-        Author author = new Author();
-        author.setFirstName(authorRequest.getFirstName());
-        author.setLastName(authorRequest.getLastName());
-        return author;
     }
 }

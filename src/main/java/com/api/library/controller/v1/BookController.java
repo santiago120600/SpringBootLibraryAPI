@@ -2,6 +2,7 @@ package com.api.library.controller.v1;
 
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.api.library.dto.BookRequest;
 import com.api.library.dto.BookResponse;
+import com.api.library.model.Book;
 import com.api.library.service.v1.BookService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,10 +37,14 @@ public class BookController {
     @Qualifier("bookServiceImplV1")
     private BookService bookService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @PostMapping
     @Operation(summary = "Add a new book", description = "Creates a new book with the given details")
     public ResponseEntity<BookResponse> addBook(@Valid @RequestBody BookRequest bookRequest) {
-        return new ResponseEntity<>(bookService.addBook(bookRequest, bookRequest.getAuthorId()), HttpStatus.CREATED);
+        Book book = modelMapper.map(bookRequest, Book.class);
+        return new ResponseEntity<>(modelMapper.map(bookService.addBook(book, book.getAuthor().getId()), BookResponse.class), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -48,19 +54,23 @@ public class BookController {
         @RequestParam(name = "isbn", required = false) String isbn,
         @RequestParam(name = "aisleNumber", required = false) Integer aisleNumber
     ) {
-        return new ResponseEntity<>(bookService.getAllBooks(BookRequest.builder().aisleNumber(aisleNumber).title(title).isbn(isbn)), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.getAllBooks(Book.builder().aisleNumber(aisleNumber).title(title).isbn(isbn))
+            .stream()
+            .map(book -> modelMapper.map(book, BookResponse.class))
+            .toList(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a book by ID", description = "Returns a book by its ID")
     public ResponseEntity<BookResponse> getBookById(@PathVariable(value = "id") Integer id) {
-        return new ResponseEntity<>(bookService.getBookById(id), HttpStatus.OK);
+        return new ResponseEntity<>(modelMapper.map(bookService.getBookById(id), BookResponse.class), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a book", description = "Updates an existing book's details")
     public ResponseEntity<BookResponse> updateBook(@PathVariable(value = "id") Integer id, @Valid @RequestBody BookRequest bookRequest) {
-        return new ResponseEntity<>(bookService.updateBook(id, bookRequest), HttpStatus.OK);
+        Book book = modelMapper.map(bookRequest, Book.class);
+        return new ResponseEntity<>(modelMapper.map(bookService.updateBook(id, book), BookResponse.class), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

@@ -28,7 +28,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.api.library.dto.AuthorRequest;
-import com.api.library.dto.AuthorResponse;
 import com.api.library.model.Author;
 import com.api.library.service.v1.AuthorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,20 +48,11 @@ public class AuthorControllerTests {
         private final String FIRST_NAME = "John";
         private final String LAST_NAME = "Doe";
         private AuthorRequest authorRequest;
-        private AuthorResponse authorResponse;
         private Author author;
         private ObjectMapper objectMapper;
 
         private AuthorRequest createAuthorRequest(String firstName, String lastName) {
                 return AuthorRequest.builder()
-                                .firstName(firstName)
-                                .lastName(lastName)
-                                .build();
-        }
-
-        private AuthorResponse createAuthorResponse(Integer id, String firstName, String lastName) {
-                return AuthorResponse.builder()
-                                .id(id)
                                 .firstName(firstName)
                                 .lastName(lastName)
                                 .build();
@@ -80,13 +70,12 @@ public class AuthorControllerTests {
         public void setUp() {
                 objectMapper = new ObjectMapper();
                 authorRequest = createAuthorRequest(FIRST_NAME, LAST_NAME);
-                authorResponse = createAuthorResponse(AUTHOR_ID, FIRST_NAME, LAST_NAME);
                 author = createAuthor(AUTHOR_ID, FIRST_NAME, LAST_NAME);
         }
 
         @Test
         public void AuthorController_CreateAuthor_ReturnCreated() throws Exception {
-                given(authorService.addAuthor(any(AuthorRequest.class))).willReturn(authorResponse);
+                given(authorService.addAuthor(any(Author.class))).willReturn(author);
 
                 ResultActions result = mockMvc.perform(
                                 post("/api/v1/authors")
@@ -103,8 +92,8 @@ public class AuthorControllerTests {
 
         @Test
         public void AuthorController_UpdateAuthor_ReturnOk() throws Exception {
-                given(authorService.updateAuthor(any(Integer.class), any(AuthorRequest.class)))
-                                .willReturn(authorResponse);
+                given(authorService.updateAuthor(any(Integer.class), any(Author.class)))
+                                .willReturn(author);
 
                 ResultActions result = mockMvc.perform(
                                 put("/api/v1/authors/{id}", AUTHOR_ID)
@@ -131,7 +120,7 @@ public class AuthorControllerTests {
 
         @Test
         public void AuthorController_GetAuthorById_ReturnOk() throws Exception {
-                given(authorService.getAuthorById(any(Integer.class))).willReturn(authorResponse);
+                given(authorService.getAuthorById(any(Integer.class))).willReturn(author);
 
                 ResultActions result = mockMvc.perform(
                                 get("/api/v1/authors/{id}", AUTHOR_ID)
@@ -147,19 +136,19 @@ public class AuthorControllerTests {
 
         @Test
         public void AuthorController_GetAuthors_ReturnOk() throws Exception {
-                List<AuthorResponse> mockAuthors = Arrays.asList(
-                                AuthorResponse.builder()
+                List<Author> mockAuthors = Arrays.asList(
+                                Author.builder()
                                                 .id(1)
                                                 .firstName("John")
                                                 .lastName("Doe")
                                                 .build(),
-                                AuthorResponse.builder()
+                                Author.builder()
                                                 .id(2)
                                                 .firstName("Jane")
                                                 .lastName("Smith")
                                                 .build());
 
-                given(authorService.getAllAuthors(any(AuthorRequest.AuthorRequestBuilder.class)))
+                given(authorService.getAllAuthors(any(Author.AuthorBuilder.class)))
                                 .willReturn(mockAuthors);
 
                 ResultActions result = mockMvc.perform(

@@ -24,8 +24,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.api.library.dto.BookRequest;
-import com.api.library.dto.BookResponse;
 import com.api.library.model.Author;
 import com.api.library.model.Book;
 import com.api.library.repository.AuthorRepository;
@@ -44,7 +42,6 @@ public class BookServiceTests {
     private final String LAST_NAME = "Doe";
     private Author author;
     private Book book;
-    private BookRequest bookRequest;
 
     @Mock
     private BookRepository bookRepository;
@@ -59,7 +56,6 @@ public class BookServiceTests {
     public void setUp() {
         author = createAuthor(AUTHOR_ID, FIRST_NAME, LAST_NAME);
         book = createBook(TITLE, ISBN, AISLE_NUMBER, author);
-        bookRequest = createBookRequest(TITLE, ISBN, AISLE_NUMBER, AUTHOR_ID);
     }
 
     private Author createAuthor(Integer id, String firstName, String lastName) {
@@ -79,22 +75,13 @@ public class BookServiceTests {
                 .build();
     }
 
-    private BookRequest createBookRequest(String title, String isbn, Integer aisleNumber, Integer authorId) {
-        return BookRequest.builder()
-                .title(title)
-                .isbn(isbn)
-                .aisleNumber(aisleNumber)
-                .authorId(authorId)
-                .build();
-    }
-
     @Test
     public void BookService_CreateBook_ReturnsBookDto() {
         when(bookRepository.findByIsbn(ISBN)).thenReturn(null);
         when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.of(author));
         when(bookRepository.save(any(Book.class))).thenReturn(book);
 
-        BookResponse savedBook = bookService.addBook(bookRequest, AUTHOR_ID);
+        Book savedBook = bookService.addBook(book, AUTHOR_ID);
         Assertions.assertNotNull(savedBook);
         Assertions.assertEquals(book.getTitle(), savedBook.getTitle());
         Assertions.assertEquals(book.getIsbn(), savedBook.getIsbn());
@@ -110,7 +97,7 @@ public class BookServiceTests {
     public void BookService_CreateBook_ReturnsExistingBook_WhenBookAlreadyExists() {
         when(bookRepository.findByIsbn(ISBN)).thenReturn(book);
 
-        BookResponse savedBook = bookService.addBook(bookRequest, AUTHOR_ID);
+        Book savedBook = bookService.addBook(book, AUTHOR_ID);
         Assertions.assertNotNull(savedBook);
         Assertions.assertEquals(book.getTitle(), savedBook.getTitle());
         Assertions.assertEquals(book.getIsbn(), savedBook.getIsbn());
@@ -126,11 +113,11 @@ public class BookServiceTests {
     public void BookService_GetAllBooks_WithTitle_ShouldReturnFilteredBooks() {
         String title = "The Great Gatsby";
 
-        BookRequest.BookRequestBuilder filterBuilder = BookRequest.builder().title(title);
+        Book.BookBuilder filterBuilder = Book.builder().title(title);
 
         when(bookRepository.findAll(any(Specification.class))).thenReturn(Arrays.asList(book));
 
-        List<BookResponse> result = bookService.getAllBooks(filterBuilder);
+        List<Book> result = bookService.getAllBooks(filterBuilder);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1, result.size());
@@ -145,7 +132,7 @@ public class BookServiceTests {
     @Test
     public void BookService_GetBookById_ReturnsBookDto() {
         when(bookRepository.findById(AUTHOR_ID)).thenReturn(Optional.of(book));
-        BookResponse foundBook = bookService.getBookById(AUTHOR_ID);
+        Book foundBook = bookService.getBookById(AUTHOR_ID);
         Assertions.assertNotNull(foundBook);
         Assertions.assertEquals(book.getTitle(), foundBook.getTitle());
         Assertions.assertEquals(book.getIsbn(), foundBook.getIsbn());
@@ -173,7 +160,7 @@ public class BookServiceTests {
         when(bookRepository.findById(AUTHOR_ID)).thenReturn(Optional.of(book));
         when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.of(author));
         when(bookRepository.save(any(Book.class))).thenReturn(book);
-        BookResponse updatedBook = bookService.updateBook(AUTHOR_ID, bookRequest);
+        Book updatedBook = bookService.updateBook(AUTHOR_ID, book);
         Assertions.assertNotNull(updatedBook);
         Assertions.assertEquals(book.getTitle(), updatedBook.getTitle());
         Assertions.assertEquals(book.getIsbn(), updatedBook.getIsbn());
@@ -188,7 +175,7 @@ public class BookServiceTests {
 
         ResponseStatusException exception = Assertions.assertThrows(
                 ResponseStatusException.class,
-                () -> bookService.updateBook(AUTHOR_ID, bookRequest));
+                () -> bookService.updateBook(AUTHOR_ID, book));
         Assertions.assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         Assertions.assertEquals("404 NOT_FOUND", exception.getMessage());
 
@@ -203,7 +190,7 @@ public class BookServiceTests {
 
         ResponseStatusException exception = Assertions.assertThrows(
                 ResponseStatusException.class,
-                () -> bookService.updateBook(AUTHOR_ID, bookRequest));
+                () -> bookService.updateBook(AUTHOR_ID, book));
         Assertions.assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         Assertions.assertEquals("404 NOT_FOUND", exception.getMessage());
 

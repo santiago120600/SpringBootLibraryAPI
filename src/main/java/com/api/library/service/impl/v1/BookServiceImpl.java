@@ -1,5 +1,7 @@
 package com.api.library.service.impl.v1;
 
+import static com.api.library.repository.BookSpecs.filterBy;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,19 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.api.library.dto.AuthorResponse;
-import com.api.library.dto.BookRequest;
-import com.api.library.dto.BookResponse;
 import com.api.library.model.Author;
 import com.api.library.model.Book;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.repository.BookRepository;
 import com.api.library.service.v1.BookService;
-import static com.api.library.repository.BookSpecs.filterBy;
 
 @Service("bookServiceImplV1")
+@Transactional
 public class BookServiceImpl implements BookService {
 
     @Autowired
@@ -29,50 +29,54 @@ public class BookServiceImpl implements BookService {
     private AuthorRepository authorRepository;
 
     @Override
-    public BookResponse addBook(BookRequest bookRequest, Integer authorId) {
+    public Book addBook(Book bookRequest, Integer authorId) {
         Book existingBook = bookRepository.findByIsbn(bookRequest.getIsbn());
         if (existingBook == null) {
-            Book savedBook = bookRepository.save(mapToEntity(bookRequest));
-            return mapToDTO(savedBook);
+            Author author = authorRepository.findById(authorId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
+            bookRequest.setAuthor(author);
+            return bookRepository.save(bookRequest);
         } else {
-            return mapToDTO(existingBook);
+            return existingBook;
         }
     }
 
     @Override
-    public List<BookResponse> getAllBooks(BookRequest.BookRequestBuilder filterBuilder) {
-        BookRequest filter = filterBuilder.build();
+    @Transactional(readOnly = true)
+    public List<Book> getAllBooks(Book.BookBuilder filterBuilder) {
+        Book filter = filterBuilder.build();
         Specification<Book> spec = filterBy(filter.getAisleNumber(), filter.getIsbn(), filter.getTitle());
-        List<BookResponse> bookResponses = bookRepository.findAll(spec).stream().map(book -> {
-            return mapToDTO(book);
+        List<Book> bookResponses = bookRepository.findAll(spec).stream().map(book -> {
+            return book;
         }).collect(Collectors.toList());
 
         return bookResponses;
     }
 
     @Override
-    public BookResponse getBookById(Integer id) {
+    @Transactional(readOnly = true)
+    public Book getBookById(Integer id) {
         try {
             Book book = bookRepository.findById(id).get();
-            return mapToDTO(book);
+            return book;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
-    public BookResponse updateBook(Integer id, BookRequest bookRequest) {
+    public Book updateBook(Integer id, Book bookRequest) {
         try {
             Book book = bookRepository.findById(id).get();
             book.setAisleNumber(bookRequest.getAisleNumber());
             book.setIsbn(bookRequest.getIsbn());
             book.setTitle(bookRequest.getTitle());
-            Author author = authorRepository.findById(bookRequest.getAuthorId())
+            Author author = authorRepository.findById(bookRequest.getAuthor().getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
             ;
             book.setAuthor(author);
             bookRepository.save(book);
-            return mapToDTO(book);
+            return book;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -87,29 +91,4 @@ public class BookServiceImpl implements BookService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
-
-    private BookResponse mapToDTO(Book book) {
-        BookResponse response = new BookResponse();
-        response.setId(book.getId());
-        response.setTitle(book.getTitle());
-        response.setAisleNumber(book.getAisleNumber());
-        response.setIsbn(book.getIsbn());
-        AuthorResponse author = new AuthorResponse();
-        author.setId(book.getAuthor().getId());
-        author.setFirstName(book.getAuthor().getFirstName());
-        author.setLastName(book.getAuthor().getLastName());
-        response.setAuthor(author);
-        return response;
-    }
-
-    private Book mapToEntity(BookRequest bookRequest) {
-        Book book = new Book();
-        book.setTitle(bookRequest.getTitle());
-        book.setAisleNumber(bookRequest.getAisleNumber());
-        book.setIsbn(bookRequest.getIsbn());
-        Author author = authorRepository.findById(bookRequest.getAuthorId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
-        book.setAuthor(author);
-        return book;
-    } 
 }

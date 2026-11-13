@@ -29,8 +29,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.api.library.dto.AuthorRequest;
-import com.api.library.dto.AuthorResponse;
 import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.impl.v1.AuthorServiceImpl;
@@ -43,7 +41,6 @@ public class AuthorServiceTests {
     private final String FIRST_NAME = "John";
     private final String LAST_NAME = "Doe";
     private Author author;
-    private AuthorRequest authorDto;
 
     @Mock
     private AuthorRepository authorRepository;
@@ -59,23 +56,15 @@ public class AuthorServiceTests {
                 .build();
     }
 
-    private AuthorRequest createAuthorRequest(String firstName, String lastName) {
-        return AuthorRequest.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .build();
-    }
-
     @BeforeEach
     public void setUp(){
         author = createAuthor(AUTHOR_ID, FIRST_NAME, LAST_NAME);
-        authorDto = createAuthorRequest(FIRST_NAME, LAST_NAME);
     }
 
     @Test
-    public void AuthorService_AddAuthor_ReturnsAuthorDto() {
+    public void AuthorService_AddAuthor_ReturnsAuthor() {
         when(authorRepository.save(Mockito.any(Author.class))).thenReturn(author);
-        AuthorResponse savedAuthor = authorService.addAuthor(authorDto);
+        Author savedAuthor = authorService.addAuthor(author);
         Assertions.assertNotNull(savedAuthor);
         Assertions.assertEquals(author.getFirstName(), savedAuthor.getFirstName());
         Assertions.assertEquals(author.getLastName(), savedAuthor.getLastName());
@@ -86,7 +75,7 @@ public class AuthorServiceTests {
         String firstName = "John";
         String lastName = "Doe";
 
-        AuthorRequest.AuthorRequestBuilder filterBuilder = AuthorRequest.builder()
+        Author.AuthorBuilder filterBuilder = Author.builder()
                 .firstName(firstName)
                 .lastName(lastName);
 
@@ -104,7 +93,7 @@ public class AuthorServiceTests {
 
         when(authorRepository.findAll(any(Specification.class))).thenReturn(authors);
 
-        List<AuthorResponse> result = authorService.getAllAuthors(filterBuilder);
+        List<Author> result = authorService.getAllAuthors(filterBuilder);
         
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -114,13 +103,13 @@ public class AuthorServiceTests {
     }
 
     @Test
-    public void AuthorService_GetAuthorById_ReturnsAuthorDto() {
+    public void AuthorService_GetAuthorById_Returnsauthor() {
         when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.ofNullable(author));
-        AuthorResponse authorResponse = authorService.getAuthorById(AUTHOR_ID);
-        Assertions.assertNotNull(authorResponse);
-        Assertions.assertEquals(author.getId(), authorResponse.getId());
-        Assertions.assertEquals(author.getFirstName(), authorResponse.getFirstName());
-        Assertions.assertEquals(author.getLastName(), authorResponse.getLastName());
+        Author Author = authorService.getAuthorById(AUTHOR_ID);
+        Assertions.assertNotNull(Author);
+        Assertions.assertEquals(author.getId(), Author.getId());
+        Assertions.assertEquals(author.getFirstName(), Author.getFirstName());
+        Assertions.assertEquals(author.getLastName(), Author.getLastName());
     }
 
     @Test
@@ -137,10 +126,10 @@ public class AuthorServiceTests {
     }
 
     @Test
-    public void AuthorService_UpdateAuthor_ReturnsAuthorDto() {
+    public void AuthorService_UpdateAuthor_Returnsauthor() {
         when(authorRepository.findById(AUTHOR_ID)).thenReturn(Optional.ofNullable(author));
         when(authorRepository.save(Mockito.any(Author.class))).thenReturn(author);
-        AuthorResponse updatedAuthor = authorService.updateAuthor(AUTHOR_ID, authorDto);
+        Author updatedAuthor = authorService.updateAuthor(AUTHOR_ID, author);
         Assertions.assertNotNull(updatedAuthor);
         Assertions.assertEquals(author.getId(), updatedAuthor.getId());
         Assertions.assertEquals(author.getFirstName(), updatedAuthor.getFirstName());
@@ -153,7 +142,7 @@ public class AuthorServiceTests {
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> authorService.updateAuthor(AUTHOR_ID, authorDto));
+                () -> authorService.updateAuthor(AUTHOR_ID, author));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("404 NOT_FOUND", exception.getMessage());
 

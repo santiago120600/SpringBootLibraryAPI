@@ -1,7 +1,9 @@
 package com.api.library.controller.v1;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.api.library.dto.AuthorRequest;
 import com.api.library.dto.AuthorResponse;
+import com.api.library.model.Author;
 import com.api.library.service.v1.AuthorService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,32 +36,41 @@ public class AuthorController {
     @Qualifier("authorServiceImplV1")
     private AuthorService authorService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @GetMapping
     @Operation(summary = "Get all authors", description = "Returns list of all authors")
     public ResponseEntity<List<AuthorResponse>> getAuthors(
         @RequestParam(name = "firstName", required = false) String firstName,
         @RequestParam(name = "lastName", required = false) String lastName
     ) {
-        return new ResponseEntity<>(authorService.getAllAuthors(AuthorRequest.builder().firstName(firstName).lastName(lastName)), HttpStatus.OK);
+        List<AuthorResponse> authors = authorService.getAllAuthors(Author.builder().firstName(firstName).lastName(lastName))
+            .stream()
+            .map(author -> modelMapper.map(author, AuthorResponse.class))
+            .collect(Collectors.toList());
+        return new ResponseEntity<>(authors, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get an author by ID", description = "Returns an author by their ID")
     public ResponseEntity<AuthorResponse> getAuthorById(@PathVariable(value = "id") Integer id) {
-        return new ResponseEntity<>(authorService.getAuthorById(id), HttpStatus.OK);
+        return new ResponseEntity<>(modelMapper.map(authorService.getAuthorById(id), AuthorResponse.class), HttpStatus.OK);
     }
 
     @PostMapping
     @Operation(summary = "Add a new author", description = "Creates a new author with the given details")
     public ResponseEntity<AuthorResponse> addAuthor(@Valid @RequestBody AuthorRequest authorRequest) {
-        return new ResponseEntity<>(authorService.addAuthor(authorRequest), HttpStatus.CREATED);
+        Author author = modelMapper.map(authorRequest, Author.class);
+        return new ResponseEntity<>(modelMapper.map(authorService.addAuthor(author), AuthorResponse.class), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an author", description = "Updates an existing author's details")
     public ResponseEntity<AuthorResponse> updateAuthor(@PathVariable(value = "id") Integer id,
             @Valid @RequestBody AuthorRequest authorRequest) {
-        return new ResponseEntity<>(authorService.updateAuthor(id, authorRequest), HttpStatus.OK);
+        Author author = modelMapper.map(authorRequest, Author.class);
+        return new ResponseEntity<>(modelMapper.map(authorService.updateAuthor(id, author), AuthorResponse.class), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
