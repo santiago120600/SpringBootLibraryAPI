@@ -73,6 +73,20 @@
 				"down"
 			],
 			"problemMatcher": []
+		},
+		{
+			"label": "maven test",
+			"type": "shell",
+			"command": "mvn",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"--batch-mode",
+				"clean",
+				"test"
+			],
+			"problemMatcher": []
 		}
 	]
 }

@@ -49,10 +49,11 @@ public class LoggingFilter implements Filter {
             (ContentCachingResponseWrapper) httpResponse : 
             new ContentCachingResponseWrapper(httpResponse);
 
-        String requestId = UUID.randomUUID().toString();
-        MDC.put("requestId", requestId);
+        String traceId = UUID.randomUUID().toString();
+        MDC.put("traceId", traceId);
         MDC.put("method", wrappedRequest.getMethod());
         MDC.put("uri", wrappedRequest.getRequestURI());
+        wrappedResponse.setHeader("X-Trace-Id", traceId);
 
         long startTime = System.currentTimeMillis();
 
@@ -70,7 +71,11 @@ public class LoggingFilter implements Filter {
 
             // Copy body to response
             wrappedResponse.copyBodyToResponse();
-            MDC.clear();
+            MDC.remove("traceId");
+            MDC.remove("method");
+            MDC.remove("uri");
+            MDC.remove("processingTime");
+            MDC.remove("status");
         }
     }
 
