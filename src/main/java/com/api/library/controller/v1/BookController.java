@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.api.library.dto.BookRequest;
 import com.api.library.dto.BookResponse;
@@ -61,22 +62,34 @@ public class BookController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a book by ID", description = "Returns a book by its ID")
-    public ResponseEntity<BookResponse> getBookById(@PathVariable(value = "id") Integer id) {
-        return new ResponseEntity<>(modelMapper.map(bookService.getBookById(id), BookResponse.class), HttpStatus.OK);
+    public ResponseEntity<?> getBookById(@PathVariable(value = "id") Integer id) {
+        try {
+            return new ResponseEntity<>(modelMapper.map(bookService.getBookById(id), BookResponse.class), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        }
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a book", description = "Updates an existing book's details")
-    public ResponseEntity<BookResponse> updateBook(@PathVariable(value = "id") Integer id, @Valid @RequestBody BookRequest bookRequest) {
+    public ResponseEntity<?> updateBook(@PathVariable(value = "id") Integer id, @Valid @RequestBody BookRequest bookRequest) {
         Book book = modelMapper.map(bookRequest, Book.class);
-        return new ResponseEntity<>(modelMapper.map(bookService.updateBook(id, book), BookResponse.class), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(modelMapper.map(bookService.updateBook(id, book), BookResponse.class), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a book", description = "Deletes a book by its ID")
-    public ResponseEntity<BookResponse> deleteBook(@PathVariable(value = "id") Integer id) {
-        bookService.deleteBook(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> deleteBook(@PathVariable(value = "id") Integer id) {
+        try {
+            bookService.deleteBook(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        }
     }
     
 }

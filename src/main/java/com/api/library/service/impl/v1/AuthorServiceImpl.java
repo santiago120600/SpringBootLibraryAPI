@@ -45,33 +45,19 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional(readOnly = true)
     public Author getAuthorById(Integer id) {
-         try{
-            return authorRepository.findById(id).get();
-        }catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        return authorRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author Not Found"));
     }
 
     @Override
     public Author updateAuthor(Integer id, Author authorRequest) {
-         try{
-            Author author = authorRepository.findById(id).get();
-            author.setFirstName(authorRequest.getFirstName());
-            author.setLastName(authorRequest.getLastName());
-            authorRepository.save(author);
-            return author;
-        }catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        authorRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author Not Found"));
+        authorRequest.setId(id);
+        return authorRepository.save(authorRequest);
     }
 
     @Override
     public void deleteAuthor(Integer id) {
-        try {
-            Author author = authorRepository.findById(id).get();
-            authorRepository.delete(author);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        Author author = authorRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author Not Found"));
+        authorRepository.delete(author);
     }
 }

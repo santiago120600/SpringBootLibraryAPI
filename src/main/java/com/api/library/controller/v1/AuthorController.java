@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.api.library.dto.AuthorRequest;
 import com.api.library.dto.AuthorResponse;
@@ -53,8 +54,12 @@ public class AuthorController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get an author by ID", description = "Returns an author by their ID")
-    public ResponseEntity<AuthorResponse> getAuthorById(@PathVariable(value = "id") Integer id) {
-        return new ResponseEntity<>(modelMapper.map(authorService.getAuthorById(id), AuthorResponse.class), HttpStatus.OK);
+    public ResponseEntity<?> getAuthorById(@PathVariable(value = "id") Integer id) {
+        try {
+            return new ResponseEntity<>(modelMapper.map(authorService.getAuthorById(id), AuthorResponse.class), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        }
     }
 
     @PostMapping
@@ -66,16 +71,24 @@ public class AuthorController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an author", description = "Updates an existing author's details")
-    public ResponseEntity<AuthorResponse> updateAuthor(@PathVariable(value = "id") Integer id,
+    public ResponseEntity<?> updateAuthor(@PathVariable(value = "id") Integer id,
             @Valid @RequestBody AuthorRequest authorRequest) {
         Author author = modelMapper.map(authorRequest, Author.class);
-        return new ResponseEntity<>(modelMapper.map(authorService.updateAuthor(id, author), AuthorResponse.class), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(modelMapper.map(authorService.updateAuthor(id, author), AuthorResponse.class), HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an author", description = "Deletes an author by their ID")
-    public ResponseEntity<AuthorResponse> deleteAuthor(@PathVariable(value = "id") Integer id) {
-        authorService.deleteAuthor(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> deleteAuthor(@PathVariable(value = "id") Integer id) {
+        try {
+            authorService.deleteAuthor(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+        }
     }
 }

@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,9 +33,11 @@ public class Author{
     @Column(name="id")
     private Integer id;
 
+    @NotBlank
     @Column(name="first_name", nullable = false)
     private String firstName;
 
+    @NotBlank
     @Column(name="last_name", nullable = false)
     private String lastName;
 
