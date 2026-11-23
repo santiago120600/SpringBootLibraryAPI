@@ -1,13 +1,13 @@
 package com.api.library.config;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -24,11 +24,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 @Order(1)
+@ConditionalOnWebApplication
 public class LoggingFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
 
-    @Autowired
+    // @Autowired()
+    @Autowired(required = false)
     private Environment environment;
 
     @Override
@@ -89,45 +91,9 @@ public class LoggingFilter implements Filter {
         return status >= 400;
     }
 
-    private void logRequestResponse(ContentCachingRequestWrapper request, 
-                                  ContentCachingResponseWrapper response, 
-                                  long processingTime) {
-        try {
-            String requestBody = getRequestBody(request);
-            String responseBody = getResponseBody(response);
-            
-            logger.info("Request: {} {}, Response: {} {}, Time: {}ms", 
-                request.getMethod(), request.getRequestURI(),
-                response.getStatus(), responseBody, processingTime);
-                
-        } catch (Exception e) {
-            logger.warn("Failed to log request/response", e);
-        }
-    }
-
-    private String getRequestBody(ContentCachingRequestWrapper request) {
-        try {
-            byte[] content = request.getContentAsByteArray();
-            if (content.length > 0) {
-                String body = new String(content, StandardCharsets.UTF_8);
-                return body.length() > 1024 ? body.substring(0, 1024) + "..." : body;
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to read request body", e);
-        }
-        return "";
-    }
-
-    private String getResponseBody(ContentCachingResponseWrapper response) {
-        try {
-            byte[] content = response.getContentAsByteArray();
-            if (content.length > 0) {
-                String body = new String(content, StandardCharsets.UTF_8);
-                return body.length() > 1024 ? body.substring(0, 1024) + "..." : body;
-            }
-        } catch (Exception e) {
-            logger.warn("Error reading response payload", e);
-        }
-        return "";
+    private void logRequestResponse(ContentCachingRequestWrapper request,
+            ContentCachingResponseWrapper response, long processingTime) {
+        logger.info("Request: {} {}, Response status: {}, Time: {}ms",
+                request.getMethod(), request.getRequestURI(), response.getStatus(), processingTime);
     }
 }
