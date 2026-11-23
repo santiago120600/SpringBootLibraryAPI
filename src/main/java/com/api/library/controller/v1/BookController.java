@@ -63,33 +63,21 @@ public class BookController {
     @GetMapping("/{id}")
     @Operation(summary = "Get a book by ID", description = "Returns a book by its ID")
     public ResponseEntity<?> getBookById(@PathVariable(value = "id") Integer id) {
-        try {
-            return new ResponseEntity<>(modelMapper.map(bookService.getBookById(id), BookResponse.class), HttpStatus.OK);
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
-        }
+        return new ResponseEntity<>(modelMapper.map(bookService.getBookById(id), BookResponse.class), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a book", description = "Updates an existing book's details")
     public ResponseEntity<?> updateBook(@PathVariable(value = "id") Integer id, @Valid @RequestBody BookRequest bookRequest) {
         Book book = modelMapper.map(bookRequest, Book.class);
-        try {
-            return new ResponseEntity<>(modelMapper.map(bookService.updateBook(id, book), BookResponse.class), HttpStatus.OK);
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
-        }
+        return new ResponseEntity<>(modelMapper.map(bookService.updateBook(id, book), BookResponse.class), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a book", description = "Deletes a book by its ID")
     public ResponseEntity<?> deleteBook(@PathVariable(value = "id") Integer id) {
-        try {
-            bookService.deleteBook(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
-        }
+        bookService.deleteBook(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
 }
