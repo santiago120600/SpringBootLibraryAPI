@@ -1,6 +1,5 @@
 package com.api.library.controller.v2;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,13 +23,14 @@ import com.api.library.service.v2.AuthorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 
 @RestController("v2AuthorController")
 @RequestMapping("/api/v2/authors")
 @Tag(name = "Author API V2", description = "API endpoints for managing authors - Version 2")
+@AllArgsConstructor
 public class AuthorController {
 
-    @Autowired
     @Qualifier("authorServiceImplV2")
     private AuthorService authorService;
 

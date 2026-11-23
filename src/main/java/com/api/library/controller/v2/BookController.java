@@ -1,6 +1,5 @@
 package com.api.library.controller.v2;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,15 +23,16 @@ import com.api.library.service.v2.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController("v2BookController")
 @RequestMapping("/api/v2/books")
+@AllArgsConstructor
 @Tag(name = "Book API V2", description = "API endpoints for managing books - Version 2")
 public class BookController {
 
-    @Autowired
     @Qualifier("bookServiceImplV2")
     private BookService bookService;
 

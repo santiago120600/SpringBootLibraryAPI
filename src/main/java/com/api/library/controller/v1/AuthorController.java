@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,17 +25,17 @@ import com.api.library.service.v1.AuthorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 
 @RestController("v1AuthorController")
 @RequestMapping("/api/v1/authors")
 @Tag(name = "Author API V1", description = "API endpoints for managing authors - Version 1")
+@AllArgsConstructor
 public class AuthorController {
 
-    @Autowired
     @Qualifier("authorServiceImplV1")
     private AuthorService authorService;
 
-    @Autowired
     private ModelMapper modelMapper;
 
     @GetMapping

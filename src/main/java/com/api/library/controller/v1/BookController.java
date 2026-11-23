@@ -3,7 +3,6 @@ package com.api.library.controller.v1;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,19 +24,19 @@ import com.api.library.service.v1.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController("v1BookController")
 @RequestMapping("/api/v1/books")
 @Tag(name = "Book API V1", description = "API endpoints for managing books - Version 1")
+@AllArgsConstructor
 public class BookController {
 
-    @Autowired
     @Qualifier("bookServiceImplV1")
     private BookService bookService;
 
-    @Autowired
     private ModelMapper modelMapper;
 
     @PostMapping

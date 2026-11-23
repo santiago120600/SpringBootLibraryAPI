@@ -1,9 +1,10 @@
 package com.api.library.service.impl.v2;
 
+import static com.api.library.repository.AuthorSpecs.filterBy;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,12 +20,12 @@ import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.v2.AuthorService;
 
-import static com.api.library.repository.AuthorSpecs.filterBy;
+import lombok.AllArgsConstructor;
 
 @Service("authorServiceImplV2")
+@AllArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
 
-    @Autowired
     private AuthorRepository authorRepository;
 
     @Override

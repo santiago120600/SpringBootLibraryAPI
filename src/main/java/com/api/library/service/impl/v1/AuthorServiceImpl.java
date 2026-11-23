@@ -5,7 +5,6 @@ import static com.api.library.repository.AuthorSpecs.filterBy;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,13 @@ import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.v1.AuthorService;
 
+import lombok.AllArgsConstructor;
+
 @Service("authorServiceImplV1")
 @Transactional
+@AllArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
 
-    @Autowired
     private AuthorRepository authorRepository;
 
     @Override
