@@ -6,11 +6,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.api.library.exception.ResourceNotFoundException;
 import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.v1.AuthorService;
@@ -45,19 +44,19 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional(readOnly = true)
     public Author getAuthorById(Integer id) {
-        return authorRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author Not Found"));
+        return authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
     }
 
     @Override
     public Author updateAuthor(Integer id, Author authorRequest) {
-        authorRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author Not Found"));
+        authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
         authorRequest.setId(id);
         return authorRepository.save(authorRequest);
     }
 
     @Override
     public void deleteAuthor(Integer id) {
-        Author author = authorRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author Not Found"));
+        Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
         authorRepository.delete(author);
     }
 }

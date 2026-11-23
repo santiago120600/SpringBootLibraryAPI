@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.api.library.exception.ResourceNotFoundException;
 import com.api.library.model.Author;
 import com.api.library.model.Book;
 import com.api.library.repository.AuthorRepository;
@@ -56,19 +57,19 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional(readOnly = true)
     public Book getBookById(Integer id) {
-        return bookRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book Not Found"));
+        return bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
     }
 
     @Override
     public Book updateBook(Integer id, Book bookRequest) {
-        bookRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book Not Found"));
+        bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
         bookRequest.setId(id);
         return bookRepository.save(bookRequest);
     }
 
     @Override
     public void deleteBook(Integer id) {
-        Book book = bookRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book Not Found"));
+        Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
         bookRepository.delete(book);
     }
 }
