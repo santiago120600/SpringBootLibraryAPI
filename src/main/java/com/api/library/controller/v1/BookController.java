@@ -43,8 +43,14 @@ public class BookController {
     @PostMapping
     @Operation(summary = "Add a new book", description = "Creates a new book with the given details")
     public ResponseEntity<BookResponse> addBook(@Valid @RequestBody BookRequest bookRequest) {
-        Book book = modelMapper.map(bookRequest, Book.class);
-        return new ResponseEntity<>(modelMapper.map(bookService.addBook(book, book.getAuthor().getId()), BookResponse.class), HttpStatus.CREATED);
+        Book book = Book.builder()
+                .title(bookRequest.getTitle())
+                .isbn(bookRequest.getIsbn())
+                .aisleNumber(bookRequest.getAisleNumber())
+                .build();
+        return new ResponseEntity<>(
+                modelMapper.map(bookService.addBook(book, bookRequest.getAuthorId()), BookResponse.class),
+                HttpStatus.CREATED);
     }
 
     @GetMapping
