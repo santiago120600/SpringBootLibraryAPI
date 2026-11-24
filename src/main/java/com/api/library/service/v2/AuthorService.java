@@ -1,19 +1,19 @@
 package com.api.library.service.v2;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.api.library.dto.AuthorRequest;
-import com.api.library.dto.ResponseWrapper;
+import com.api.library.model.Author;
 
 public interface AuthorService {
 
-    ResponseWrapper addAuthor(AuthorRequest author);
+    Author addAuthor(Author author);
 
-    ResponseWrapper  getAllAuthors(Pageable pageable, AuthorRequest.AuthorRequestBuilder filterBuilder);
+    Page<Author> getAllAuthors(Pageable pageable, Author.AuthorBuilder filterBuilder);
 
-    ResponseWrapper  getAuthorById(Integer id);
+    Author getAuthorById(Integer id);
 
-    ResponseWrapper  updateAuthor(Integer id, AuthorRequest authorDetails);
+    Author updateAuthor(Integer id, Author authorDetails);
 
-    ResponseWrapper  deleteAuthor(Integer id);
+    void deleteAuthor(Integer id);
 }
