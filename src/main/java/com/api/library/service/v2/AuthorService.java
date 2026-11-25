@@ -1,15 +1,13 @@
 package com.api.library.service.v2;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
+import com.api.library.dto.ResponseWrapper;
 import com.api.library.model.Author;
 
 public interface AuthorService {
 
     Author addAuthor(Author author);
 
-    Page<Author> getAllAuthors(Pageable pageable, Author.AuthorBuilder filterBuilder);
+    ResponseWrapper getAllAuthors(Author.AuthorBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder);
 
     Author getAuthorById(Integer id);
 

@@ -51,29 +51,7 @@ public class AuthorController {
             @RequestParam(name = "lastName", required = false) String lastName,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_AUTHOR_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sortByAndOrder);
-        Page<Author> author = authorService.getAllAuthors(pageable,
-                Author.builder().firstName(firstName).lastName(lastName));
-
-        Pagination pagination = new Pagination();
-        pagination.setCurrentPage(author.getPageable().getPageNumber());
-        pagination.setPageSize(author.getSize());
-        pagination.setTotalElements(author.getTotalElements());
-        pagination.setTotalPages(author.getTotalPages());
-        pagination.setLastPage(author.isLast());
-
-        ResponseWrapper response = new ResponseWrapper();
-        response.setMessage("Authors retrieved successfully");
-        response.setStatus("success");
-        response.setData(author
-                .map(item -> modelMapper.map(item, AuthorResponse.class))
-                .getContent());
-        response.setPagination(pagination);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(authorService.getAllAuthors(Author.builder().firstName(firstName).lastName(lastName), page, size, sortBy, sortOrder), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
