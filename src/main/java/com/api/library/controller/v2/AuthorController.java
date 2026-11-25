@@ -19,7 +19,6 @@ import com.api.library.config.AppConstants;
 import com.api.library.dto.AuthorRequest;
 import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.ResponseWrapper;
-import com.api.library.model.Author;
 import com.api.library.service.v2.AuthorService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,7 +37,6 @@ public class AuthorController {
 
     @GetMapping
     @Operation(summary = "Get all authors", description = "Returns a paginated list of all authors")
-    @SuppressWarnings("unchecked")
     public ResponseEntity<ResponseWrapper<List<AuthorResponse>>> getAuthors(
             @RequestParam(value = "page",  defaultValue =  AppConstants.PAGE_NUMBER) Integer page,
             @RequestParam(value = "size", defaultValue = AppConstants.PAGE_SIZE) Integer size,
@@ -46,7 +44,7 @@ public class AuthorController {
             @RequestParam(name = "lastName", required = false) String lastName,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_AUTHOR_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
-        return new ResponseEntity<>(authorService.getAllAuthors(Author.builder().firstName(firstName).lastName(lastName), page, size, sortBy, sortOrder), HttpStatus.OK);
+        return new ResponseEntity<>(authorService.getAllAuthors(AuthorRequest.builder().firstName(firstName).lastName(lastName), page, size, sortBy, sortOrder), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

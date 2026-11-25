@@ -1,11 +1,8 @@
 package com.api.library.controller.v2;
 
-import org.modelmapper.ModelMapper;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,9 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.library.config.AppConstants;
 import com.api.library.dto.BookRequest;
 import com.api.library.dto.BookResponse;
-import com.api.library.dto.Pagination;
 import com.api.library.dto.ResponseWrapper;
-import com.api.library.model.Book;
 import com.api.library.service.v2.BookService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,23 +37,18 @@ public class BookController {
     @Qualifier("bookServiceImplV2")
     private BookService bookService;
 
-    private ModelMapper modelMapper;
-
     @PostMapping
     @Operation(summary = "Add a new book", description = "Creates a new book with the given details")
-    public ResponseEntity<ResponseWrapper> addBook(@Valid @RequestBody BookRequest bookRequest) {
-        Book book = bookService.addBook(
-                Book.builder().title(bookRequest.getTitle()).isbn(bookRequest.getIsbn())
-                        .aisleNumber(bookRequest.getAisleNumber()).build(),
-                bookRequest.getAuthorId());
-        ResponseWrapper response = ResponseWrapper.builder().message("Book added successfully").status("success")
-                .data(modelMapper.map(book, BookResponse.class)).build();
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<ResponseWrapper<BookResponse>> addBook(@Valid @RequestBody BookRequest bookRequest) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(bookService.addBook(
+                            BookRequest.builder().title(bookRequest.getTitle()).isbn(bookRequest.getIsbn())
+                                            .aisleNumber(bookRequest.getAisleNumber()).build(),
+                            bookRequest.getAuthorId()));
     }
 
     @GetMapping
     @Operation(summary = "Get all books", description = "Returns a paginated list of all books")
-    public ResponseEntity<ResponseWrapper> getBooks(
+    public ResponseEntity<ResponseWrapper<List<BookResponse>>> getBooks(
             @RequestParam(value = "page", defaultValue = AppConstants.PAGE_NUMBER) Integer page,
             @RequestParam(value = "size", defaultValue = AppConstants.PAGE_SIZE) Integer size,
             @RequestParam(name = "title", required = false) String title,
@@ -66,58 +56,28 @@ public class BookController {
             @RequestParam(name = "aisleNumber", required = false) Integer aisleNumber,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BOOK_BY) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sortByAndOrder);
-        Page<Book> book = bookService.getAllBooks(pageable,
-                Book.builder().aisleNumber(aisleNumber).title(title).isbn(isbn));
-
-        Pagination pagination = new Pagination();
-        pagination.setCurrentPage(book.getPageable().getPageNumber());
-        pagination.setPageSize(book.getSize());
-        pagination.setTotalElements(book.getTotalElements());
-        pagination.setTotalPages(book.getTotalPages());
-        pagination.setLastPage(book.isLast());
-
-        ResponseWrapper response = new ResponseWrapper();
-        response.setMessage("Books retrieved successfully");
-        response.setStatus("success");
-        response.setPagination(pagination);
-        response.setData(book
-                .map(item -> modelMapper.map(item, BookResponse.class))
-                .getContent());
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(bookService.getAllBooks(
+                            BookRequest.builder().aisleNumber(aisleNumber).title(title).isbn(isbn), page, size, sortBy,
+                            sortOrder), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a book by ID", description = "Returns a book by its ID")
-    public ResponseEntity<ResponseWrapper> getBookById(@PathVariable(value = "id") Integer id) {
-        BookResponse book = modelMapper.map(bookService.getBookById(id), BookResponse.class);
-        ResponseWrapper response = ResponseWrapper.builder().message("Book retrieved successfully").status("success")
-        .data(book).build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ResponseWrapper<BookResponse>> getBookById(@PathVariable(value = "id") Integer id) {
+        return new ResponseEntity<>(bookService.getBookById(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a book", description = "Updates an existing book's details")
-    public ResponseEntity<ResponseWrapper> updateBook(@PathVariable(value = "id") Integer id,
+    public ResponseEntity<ResponseWrapper<BookResponse>> updateBook(@PathVariable(value = "id") Integer id,
             @Valid @RequestBody BookRequest bookRequest) {
-        Book book = bookService.updateBook(id, modelMapper.map(bookRequest, Book.class));
-        ResponseWrapper response = ResponseWrapper.builder().message("Book updated successfully").status("success")
-                .data(modelMapper.map(book, BookResponse.class)).build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(bookService.updateBook(id, bookRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a book", description = "Deletes a book by its ID")
-    public ResponseEntity<ResponseWrapper> deleteBook(@PathVariable(value = "id") Integer id) {
-        ResponseWrapper response = new ResponseWrapper();
-        response.setMessage("Book deleted successfully");
-        response.setStatus("success");
-        bookService.deleteBook(id);
-        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+    public ResponseEntity<ResponseWrapper<BookResponse>> deleteBook(@PathVariable(value = "id") Integer id) {
+        return new ResponseEntity<>(bookService.deleteBook(id), HttpStatus.OK);
     }
     
 }

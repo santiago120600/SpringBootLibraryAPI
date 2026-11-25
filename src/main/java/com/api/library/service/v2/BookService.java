@@ -1,19 +1,20 @@
 package com.api.library.service.v2;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 
-import com.api.library.model.Book;
+import com.api.library.dto.BookRequest;
+import com.api.library.dto.BookResponse;
+import com.api.library.dto.ResponseWrapper;
 
 public interface BookService {
 
-    Book addBook(Book book, Integer authorId);
+    ResponseWrapper<BookResponse> addBook(BookRequest book, Integer authorId);
 
-    Page<Book> getAllBooks(Pageable pageable, Book.BookBuilder filterBuilder);
+    ResponseWrapper<List<BookResponse>> getAllBooks(BookRequest.BookRequestBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder);
 
-    Book getBookById(Integer id);
+    ResponseWrapper<BookResponse> getBookById(Integer id);
 
-    Book updateBook(Integer id, Book bookDetails);
+    ResponseWrapper<BookResponse> updateBook(Integer id, BookRequest bookDetails);
 
-    void deleteBook(Integer id);
+    ResponseWrapper<BookResponse> deleteBook(Integer id);
 }

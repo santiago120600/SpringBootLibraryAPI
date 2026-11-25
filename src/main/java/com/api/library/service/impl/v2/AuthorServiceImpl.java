@@ -38,13 +38,13 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public ResponseWrapper<List<AuthorResponse>> getAllAuthors(Author.AuthorBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder) {
+    public ResponseWrapper<List<AuthorResponse>> getAllAuthors(AuthorRequest.AuthorRequestBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder) {
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
                ? Sort.by(sortBy).ascending()
                : Sort.by(sortBy).descending();
        Pageable pageable = PageRequest.of(page, size, sortByAndOrder);
 
-        Author filter = filterBuilder.build();
+        AuthorRequest filter = filterBuilder.build();
 
         Specification<Author> spec = filterBy(filter.getFirstName(), filter.getLastName());
 

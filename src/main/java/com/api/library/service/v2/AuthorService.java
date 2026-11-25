@@ -5,13 +5,12 @@ import java.util.List;
 import com.api.library.dto.AuthorRequest;
 import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.ResponseWrapper;
-import com.api.library.model.Author;
 
 public interface AuthorService {
 
     ResponseWrapper<AuthorResponse> addAuthor(AuthorRequest author);
 
-    ResponseWrapper<List<AuthorResponse>> getAllAuthors(Author.AuthorBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder);
+    ResponseWrapper<List<AuthorResponse>> getAllAuthors(AuthorRequest.AuthorRequestBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder);
 
     ResponseWrapper<AuthorResponse> getAuthorById(Integer id);
 
