@@ -1,11 +1,6 @@
 package com.api.library.controller.v2;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.api.library.config.AppConstants;
 import com.api.library.dto.AuthorRequest;
-import com.api.library.dto.AuthorResponse;
-import com.api.library.dto.Pagination;
 import com.api.library.dto.ResponseWrapper;
 import com.api.library.model.Author;
 import com.api.library.service.v2.AuthorService;
@@ -40,8 +33,6 @@ public class AuthorController {
     @Qualifier("authorServiceImplV2")
     private AuthorService authorService;
 
-    private ModelMapper modelMapper;
-
     @GetMapping
     @Operation(summary = "Get all authors", description = "Returns a paginated list of all authors")
     public ResponseEntity<ResponseWrapper> getAuthors(
@@ -57,37 +48,25 @@ public class AuthorController {
     @GetMapping("/{id}")
     @Operation(summary = "Get an author by ID", description = "Returns an author by their ID")
     public ResponseEntity<ResponseWrapper> getAuthorById(@PathVariable(value = "id") Integer id) {
-        AuthorResponse author = modelMapper.map(authorService.getAuthorById(id), AuthorResponse.class);
-        ResponseWrapper response = ResponseWrapper.builder().message("Author retrieved successfully").status("success").data(author).build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(authorService.getAuthorById(id), HttpStatus.OK);
     }
 
     @PostMapping
     @Operation(summary = "Add a new author", description = "Creates a new author with the given details")
     public ResponseEntity<ResponseWrapper> addAuthor(@Valid @RequestBody AuthorRequest authorRequest) {
-        Author author = authorService.addAuthor(modelMapper.map(authorRequest, Author.class));
-        ResponseWrapper response = ResponseWrapper.builder().message("Author updated successfully").status("success")
-                .data(modelMapper.map(author, AuthorResponse.class)).build();
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(authorService.addAuthor(authorRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an author", description = "Updates an existing author's details")
     public ResponseEntity<ResponseWrapper> updateAuthor(@PathVariable(value = "id") Integer id,
             @Valid @RequestBody AuthorRequest authorRequest) {
-        Author author = authorService.updateAuthor(id, modelMapper.map(authorRequest, Author.class));
-        ResponseWrapper response = ResponseWrapper.builder().message("Author added successfully").status("success")
-                .data(modelMapper.map(author, AuthorResponse.class)).build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(authorService.updateAuthor(id, authorRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an author", description = "Deletes an author by their ID")
     public ResponseEntity<ResponseWrapper> deleteAuthor(@PathVariable(value = "id") Integer id) {
-        ResponseWrapper response = new ResponseWrapper();
-        response.setMessage("Author deleted successfully");
-        response.setStatus("success");
-        authorService.deleteAuthor(id);
-        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(authorService.deleteAuthor(id), HttpStatus.OK);
     }
 }

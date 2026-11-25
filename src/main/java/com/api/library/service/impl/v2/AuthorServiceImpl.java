@@ -8,13 +8,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.api.library.dto.AuthorRequest;
 import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.Pagination;
 import com.api.library.dto.ResponseWrapper;
+import com.api.library.exception.ResourceNotFoundException;
 import com.api.library.model.Author;
 import com.api.library.repository.AuthorRepository;
 import com.api.library.service.v2.AuthorService;
@@ -30,8 +30,9 @@ public class AuthorServiceImpl implements AuthorService {
     private ModelMapper modelMapper;
 
     @Override
-    public Author addAuthor(Author authorRequest) {
-        return authorRepository.save(authorRequest);
+    public ResponseWrapper addAuthor(AuthorRequest authorRequest) {
+        Author author =  authorRepository.save(modelMapper.map(authorRequest, Author.class));
+        return ResponseWrapper.of("Author added successfully", "success", modelMapper.map(author, AuthorResponse.class));
     }
 
     @Override
@@ -66,34 +67,24 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Author getAuthorById(Integer id) {
-         try{
-            return authorRepository.findById(id).get();
-        }catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    public ResponseWrapper getAuthorById(Integer id) {
+        Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
+        return ResponseWrapper.of("Author retrieved successfully", "success", modelMapper.map(author, AuthorResponse.class));
     }
 
     @Override
-    public Author updateAuthor(Integer id, Author authorRequest) {
-         try{
-            Author author = authorRepository.findById(id).get();
-            author.setFirstName(authorRequest.getFirstName());
-            author.setLastName(authorRequest.getLastName());
-            return authorRepository.save(author);
-        }catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    public ResponseWrapper updateAuthor(Integer id, AuthorRequest authorRequest) {
+        Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
+        author.setFirstName(authorRequest.getFirstName());
+        author.setLastName(authorRequest.getLastName());
+        return ResponseWrapper.of("Author updated successfully", "success", modelMapper.map(authorRepository.save(author), AuthorResponse.class));
     }
 
     @Override
-    public void deleteAuthor(Integer id) {
-        try {
-            Author author = authorRepository.findById(id).get();
-            authorRepository.delete(author);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    public ResponseWrapper deleteAuthor(Integer id) {
+        Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
+        authorRepository.delete(author);
+        return ResponseWrapper.of("Author deleted successfully", "success", modelMapper.map(author, AuthorResponse.class));
     }
 
 }

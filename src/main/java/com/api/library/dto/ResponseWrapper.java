@@ -23,4 +23,12 @@ public class ResponseWrapper {
     public String getTraceId() {
         return MDC.get("traceId");
     }
+
+    public static ResponseWrapper of(String message, String status, Object data) {
+        return ResponseWrapper.builder()
+                .message(message)
+                .status(status)
+                .data(data)
+                .build();
+    }
 }
