@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.api.library.config.AppConstants;
 import com.api.library.dto.AuthorRequest;
 import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.Pagination;
@@ -44,8 +45,8 @@ public class AuthorController {
     @GetMapping
     @Operation(summary = "Get all authors", description = "Returns a paginated list of all authors")
     public ResponseEntity<ResponseWrapper> getAuthors(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "page",  defaultValue =  AppConstants.PAGE_NUMBER) Integer page,
+            @RequestParam(value = "size", defaultValue = AppConstants.PAGE_SIZE) Integer size,
             @RequestParam(name = "firstName", required = false) String firstName,
             @RequestParam(name = "lastName", required = false) String lastName,
             @RequestParam(name = "sort", defaultValue = "lastName") String sort) {
@@ -58,6 +59,7 @@ public class AuthorController {
         pagination.setPageSize(author.getSize());
         pagination.setTotalElements(author.getTotalElements());
         pagination.setTotalPages(author.getTotalPages());
+        pagination.setLastPage(author.isLast());
 
         ResponseWrapper response = new ResponseWrapper();
         response.setMessage("Authors retrieved successfully");

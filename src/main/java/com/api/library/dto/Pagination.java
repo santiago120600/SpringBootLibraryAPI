@@ -20,4 +20,6 @@ public class Pagination {
     private long totalElements;
     @JsonProperty("total_pages")
     private int totalPages;
+    @JsonProperty("is_last")
+    private boolean lastPage;
 }

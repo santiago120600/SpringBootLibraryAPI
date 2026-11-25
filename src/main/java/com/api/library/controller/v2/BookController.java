@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.api.library.config.AppConstants;
 import com.api.library.dto.BookRequest;
 import com.api.library.dto.BookResponse;
 import com.api.library.dto.Pagination;
@@ -58,8 +59,8 @@ public class BookController {
     @GetMapping
     @Operation(summary = "Get all books", description = "Returns a paginated list of all books")
     public ResponseEntity<ResponseWrapper> getBooks(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "page", defaultValue = AppConstants.PAGE_NUMBER) Integer page,
+            @RequestParam(value = "size", defaultValue = AppConstants.PAGE_SIZE) Integer size,
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "isbn", required = false) String isbn,
             @RequestParam(name = "aisleNumber", required = false) Integer aisleNumber,
@@ -73,6 +74,7 @@ public class BookController {
         pagination.setPageSize(book.getSize());
         pagination.setTotalElements(book.getTotalElements());
         pagination.setTotalPages(book.getTotalPages());
+        pagination.setLastPage(book.isLast());
 
         ResponseWrapper response = new ResponseWrapper();
         response.setMessage("Books retrieved successfully");
