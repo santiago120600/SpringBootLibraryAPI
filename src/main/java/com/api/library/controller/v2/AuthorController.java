@@ -49,8 +49,12 @@ public class AuthorController {
             @RequestParam(value = "size", defaultValue = AppConstants.PAGE_SIZE) Integer size,
             @RequestParam(name = "firstName", required = false) String firstName,
             @RequestParam(name = "lastName", required = false) String lastName,
-            @RequestParam(name = "sort", defaultValue = "lastName") String sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_AUTHOR_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sortByAndOrder);
         Page<Author> author = authorService.getAllAuthors(pageable,
                 Author.builder().firstName(firstName).lastName(lastName));
 

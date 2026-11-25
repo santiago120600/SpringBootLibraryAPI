@@ -64,8 +64,12 @@ public class BookController {
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "isbn", required = false) String isbn,
             @RequestParam(name = "aisleNumber", required = false) Integer aisleNumber,
-            @RequestParam(name = "sort", defaultValue = "aisleNumber") String sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BOOK_BY) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sortByAndOrder);
         Page<Book> book = bookService.getAllBooks(pageable,
                 Book.builder().aisleNumber(aisleNumber).title(title).isbn(isbn));
 
