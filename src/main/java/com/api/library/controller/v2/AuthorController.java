@@ -1,5 +1,7 @@
 package com.api.library.controller.v2;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.api.library.config.AppConstants;
 import com.api.library.dto.AuthorRequest;
+import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.ResponseWrapper;
 import com.api.library.model.Author;
 import com.api.library.service.v2.AuthorService;
@@ -35,7 +38,8 @@ public class AuthorController {
 
     @GetMapping
     @Operation(summary = "Get all authors", description = "Returns a paginated list of all authors")
-    public ResponseEntity<ResponseWrapper> getAuthors(
+    @SuppressWarnings("unchecked")
+    public ResponseEntity<ResponseWrapper<List<AuthorResponse>>> getAuthors(
             @RequestParam(value = "page",  defaultValue =  AppConstants.PAGE_NUMBER) Integer page,
             @RequestParam(value = "size", defaultValue = AppConstants.PAGE_SIZE) Integer size,
             @RequestParam(name = "firstName", required = false) String firstName,
@@ -47,26 +51,26 @@ public class AuthorController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get an author by ID", description = "Returns an author by their ID")
-    public ResponseEntity<ResponseWrapper> getAuthorById(@PathVariable(value = "id") Integer id) {
+    public ResponseEntity<ResponseWrapper<AuthorResponse>> getAuthorById(@PathVariable(value = "id") Integer id) {
         return new ResponseEntity<>(authorService.getAuthorById(id), HttpStatus.OK);
     }
 
     @PostMapping
     @Operation(summary = "Add a new author", description = "Creates a new author with the given details")
-    public ResponseEntity<ResponseWrapper> addAuthor(@Valid @RequestBody AuthorRequest authorRequest) {
+    public ResponseEntity<ResponseWrapper<AuthorResponse>> addAuthor(@Valid @RequestBody AuthorRequest authorRequest) {
         return new ResponseEntity<>(authorService.addAuthor(authorRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an author", description = "Updates an existing author's details")
-    public ResponseEntity<ResponseWrapper> updateAuthor(@PathVariable(value = "id") Integer id,
+    public ResponseEntity<ResponseWrapper<AuthorResponse>> updateAuthor(@PathVariable(value = "id") Integer id,
             @Valid @RequestBody AuthorRequest authorRequest) {
         return new ResponseEntity<>(authorService.updateAuthor(id, authorRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an author", description = "Deletes an author by their ID")
-    public ResponseEntity<ResponseWrapper> deleteAuthor(@PathVariable(value = "id") Integer id) {
+    public ResponseEntity<ResponseWrapper<AuthorResponse>> deleteAuthor(@PathVariable(value = "id") Integer id) {
         return new ResponseEntity<>(authorService.deleteAuthor(id), HttpStatus.OK);
     }
 }

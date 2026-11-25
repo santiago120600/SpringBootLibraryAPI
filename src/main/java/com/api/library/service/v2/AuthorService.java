@@ -1,18 +1,21 @@
 package com.api.library.service.v2;
 
+import java.util.List;
+
 import com.api.library.dto.AuthorRequest;
+import com.api.library.dto.AuthorResponse;
 import com.api.library.dto.ResponseWrapper;
 import com.api.library.model.Author;
 
 public interface AuthorService {
 
-    ResponseWrapper addAuthor(AuthorRequest author);
+    ResponseWrapper<AuthorResponse> addAuthor(AuthorRequest author);
 
-    ResponseWrapper getAllAuthors(Author.AuthorBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder);
+    ResponseWrapper<List<AuthorResponse>> getAllAuthors(Author.AuthorBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder);
 
-    ResponseWrapper getAuthorById(Integer id);
+    ResponseWrapper<AuthorResponse> getAuthorById(Integer id);
 
-    ResponseWrapper updateAuthor(Integer id, AuthorRequest authorDetails);
+    ResponseWrapper<AuthorResponse> updateAuthor(Integer id, AuthorRequest authorDetails);
 
-    ResponseWrapper deleteAuthor(Integer id);
+    ResponseWrapper<AuthorResponse> deleteAuthor(Integer id);
 }

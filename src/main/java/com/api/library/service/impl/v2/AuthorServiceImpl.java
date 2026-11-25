@@ -2,6 +2,8 @@ package com.api.library.service.impl.v2;
 
 import static com.api.library.repository.AuthorSpecs.filterBy;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,13 +32,13 @@ public class AuthorServiceImpl implements AuthorService {
     private ModelMapper modelMapper;
 
     @Override
-    public ResponseWrapper addAuthor(AuthorRequest authorRequest) {
+    public ResponseWrapper<AuthorResponse> addAuthor(AuthorRequest authorRequest) {
         Author author =  authorRepository.save(modelMapper.map(authorRequest, Author.class));
         return ResponseWrapper.of("Author added successfully", "success", modelMapper.map(author, AuthorResponse.class));
     }
 
     @Override
-    public ResponseWrapper getAllAuthors(Author.AuthorBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder) {
+    public ResponseWrapper<List<AuthorResponse>> getAllAuthors(Author.AuthorBuilder filterBuilder, Integer page, Integer size, String sortBy, String sortOrder) {
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
                ? Sort.by(sortBy).ascending()
                : Sort.by(sortBy).descending();
@@ -55,25 +57,19 @@ public class AuthorServiceImpl implements AuthorService {
         pagination.setTotalPages(authorPage.getTotalPages());
         pagination.setLastPage(authorPage.isLast());
 
-        ResponseWrapper response = new ResponseWrapper();
-        response.setMessage("Authors retrieved successfully");
-        response.setStatus("success");
-        response.setData(authorPage
+        return ResponseWrapper.of("Authors retrieved successfully", "success", authorPage
                 .map(author -> modelMapper.map(author, AuthorResponse.class))
-                .getContent());
-        response.setPagination(pagination);
-
-        return response;
+                .getContent(), pagination);
     }
 
     @Override
-    public ResponseWrapper getAuthorById(Integer id) {
+    public ResponseWrapper<AuthorResponse> getAuthorById(Integer id) {
         Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
         return ResponseWrapper.of("Author retrieved successfully", "success", modelMapper.map(author, AuthorResponse.class));
     }
 
     @Override
-    public ResponseWrapper updateAuthor(Integer id, AuthorRequest authorRequest) {
+    public ResponseWrapper<AuthorResponse> updateAuthor(Integer id, AuthorRequest authorRequest) {
         Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
         author.setFirstName(authorRequest.getFirstName());
         author.setLastName(authorRequest.getLastName());
@@ -81,7 +77,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public ResponseWrapper deleteAuthor(Integer id) {
+    public ResponseWrapper<AuthorResponse> deleteAuthor(Integer id) {
         Author author = authorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Author", "id", id));
         authorRepository.delete(author);
         return ResponseWrapper.of("Author deleted successfully", "success", modelMapper.map(author, AuthorResponse.class));

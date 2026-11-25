@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseWrapper {
+public class ResponseWrapper<T> {
     private String message;
     private String status;
-    private Object data;
+    private T data;
     private Pagination pagination;
 
     @JsonProperty("trace_id")
@@ -24,11 +24,20 @@ public class ResponseWrapper {
         return MDC.get("traceId");
     }
 
-    public static ResponseWrapper of(String message, String status, Object data) {
-        return ResponseWrapper.builder()
+    public static <T> ResponseWrapper<T> of(String message, String status, T data) {
+        return ResponseWrapper.<T>builder()
                 .message(message)
                 .status(status)
                 .data(data)
+                .build();
+    }
+
+    public static <T> ResponseWrapper<T> of(String message, String status, T data, Pagination pagination) {
+        return ResponseWrapper.<T>builder()
+                .message(message)
+                .status(status)
+                .data(data)
+                .pagination(pagination)
                 .build();
     }
 }
