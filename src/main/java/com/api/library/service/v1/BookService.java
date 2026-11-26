@@ -2,17 +2,18 @@ package com.api.library.service.v1;
 
 import java.util.List;
 
-import com.api.library.model.Book;
+import com.api.library.dto.BookRequest;
+import com.api.library.dto.BookResponse;
 
 public interface BookService {
 
-    Book addBook(Book book, Integer authorId);
+    BookResponse addBook(BookRequest book, Integer authorId);
 
-    List<Book> getAllBooks(Book.BookBuilder filter);
+    List<BookResponse> getAllBooks(BookRequest.BookRequestBuilder filter);
 
-    Book getBookById(Integer id);
+    BookResponse getBookById(Integer id);
 
-    Book updateBook(Integer id, Book bookDetails);
+    BookResponse updateBook(Integer id, BookRequest bookDetails);
 
     void deleteBook(Integer id);
 }
